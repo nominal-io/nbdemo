@@ -2,9 +2,6 @@
 
 Demo notebooks for Nominal, published to https://nominal-io.github.io/nbdemo/.
 
-The site is public. Check each notebook's outputs before merging. The build replaces the UUIDs
-in resource IDs, but publishes names, properties and data as is.
-
 The notebooks are MyST Markdown, edited through Jupytext. Sphinx and MyST-NB run them on build
 and render them with `nominal-sphinx-theme`.
 
