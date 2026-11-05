@@ -1,0 +1,11 @@
+__pycache__/
+.DS_Store
+.venv/
+.ipynb_checkpoints/
+.ruff_cache/
+
+# Sphinx output
+_build/
+
+# Files the notebooks write while they run
+notebooks/**/rf_radio_data/

@@ -1,0 +1,61 @@
+[project]
+name = "nbdemo"
+version = "0.1.0"
+description = "Demo notebooks for the Nominal platform, published to GitHub Pages."
+readme = "README.md"
+requires-python = ">=3.12"
+# What the notebooks import. Add a demo's dependencies here when you add the demo.
+dependencies = [
+    "nominal",
+    "numpy>=2.2",
+    "pandas>=2.2",
+    "matplotlib>=3.10",
+    "scikit-rf>=1.8",
+    "instro",
+]
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.4",
+    "jupytext>=1.19.6",
+    "ruff>=0.12",
+]
+docs = [
+    "sphinx>=9.1.0",
+    "nominal-sphinx-theme",
+    "myst-nb>=1.4.0",
+    "sphinx-design>=0.7.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-autobuild>=2025.8.25",
+]
+
+[tool.uv]
+# A collection of notebooks, not an installable package.
+package = false
+default-groups = ["dev", "docs"]
+# The notebooks use instro's virtual instruments and Nominal publisher, which need none of
+# instro's VISA backends (pyvisa-py), command line (typer, textual) or thermocouple tables.
+# A marker that never matches leaves each one out.
+override-dependencies = [
+    "pyvisa-py; sys_platform == 'never'",
+    "textual; sys_platform == 'never'",
+    "thermocouples; sys_platform == 'never'",
+    "typer; sys_platform == 'never'",
+]
+
+[tool.uv.sources]
+# The notebook cards' relationship diagrams come from nominal-client PR #1272, which builds on the
+# cards from #1260. Switch to the PyPI release once it ships.
+nominal = { git = "https://github.com/nominal-io/nominal-client", branch = "feat/notebook-card-graphs" }
+# uv.lock pins the theme's commit; `uv lock --upgrade-package nominal-sphinx-theme` updates it.
+nominal-sphinx-theme = { git = "https://github.com/nominal-io/nominal-sphinx-theme" }
+# instro's notebook cards and publisher stats come from the issue-709 branches. Switch to the PyPI
+# release once they ship.
+instro = { git = "https://github.com/nominal-io/instro", branch = "issue-709-docs-notebooks" }
+
+[tool.ruff]
+# Notebook code is formatted at 85 columns, through Jupytext, so it fits the page: see the justfile.
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
