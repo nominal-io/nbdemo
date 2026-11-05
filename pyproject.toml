@@ -44,9 +44,9 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
-# The notebook cards' relationship diagrams come from nominal-client PR #1272, which builds on the
-# cards from #1260. Switch to the PyPI release once it ships.
-nominal = { git = "https://github.com/nominal-io/nominal-client", branch = "feat/notebook-card-graphs" }
+# The notebook cards (#1260) and their diagrams (#1272) are on main, but not yet in a release.
+# Switch to the PyPI release once it ships.
+nominal = { git = "https://github.com/nominal-io/nominal-client", branch = "main" }
 # uv.lock pins the theme's commit; `uv lock --upgrade-package nominal-sphinx-theme` updates it.
 nominal-sphinx-theme = { git = "https://github.com/nominal-io/nominal-sphinx-theme" }
 # instro's notebook cards and publisher stats come from the issue-709 branches. Switch to the PyPI

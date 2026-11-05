@@ -1842,7 +1842,7 @@ docs = [
 requires-dist = [
     { name = "instro", git = "https://github.com/nominal-io/instro?branch=issue-709-docs-notebooks" },
     { name = "matplotlib", specifier = ">=3.10" },
-    { name = "nominal", git = "https://github.com/nominal-io/nominal-client?branch=feat%2Fnotebook-card-graphs" },
+    { name = "nominal", git = "https://github.com/nominal-io/nominal-client?branch=main" },
     { name = "numpy", specifier = ">=2.2" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "scikit-rf", specifier = ">=1.8" },
@@ -1890,7 +1890,7 @@ wheels = [
 [[package]]
 name = "nominal"
 version = "1.181.0"
-source = { git = "https://github.com/nominal-io/nominal-client?branch=feat%2Fnotebook-card-graphs#99e3ddd9a7a15fafe9ee2d999c223b0d606d5d20" }
+source = { git = "https://github.com/nominal-io/nominal-client?branch=main#07de14a466cb97df8941f071ca3429c02b6f5ff0" }
 dependencies = [
     { name = "certifi" },
     { name = "click" },
