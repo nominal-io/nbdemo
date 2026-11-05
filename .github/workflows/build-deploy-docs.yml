@@ -97,6 +97,8 @@ jobs:
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: ./_build/html
+          # The docs hub (dev.nominal.io/demos/) downloads this upload, so keep it 90 days.
+          retention-days: 90
 
   deploy:
     name: Deploy github pages
