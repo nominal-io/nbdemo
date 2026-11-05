@@ -46,6 +46,8 @@ intersphinx_mapping = {"nominal": ("https://nominal-io.github.io/nominal-client"
 
 # -- HTML: nominal-sphinx-theme (Shibuya, styled like the other Nominal docs) ----
 html_theme = "shibuya"
+# Also published at dev.nominal.io/demos/: the header links back to the hub.
+nominal_hub_url = "https://dev.nominal.io/"
 html_title = "Nominal demos"
 html_copy_source = False
 html_show_sourcelink = False
