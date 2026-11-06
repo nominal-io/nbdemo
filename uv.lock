@@ -1836,6 +1836,7 @@ docs = [
     { name = "sphinx-autobuild" },
     { name = "sphinx-copybutton" },
     { name = "sphinx-design" },
+    { name = "sphinxcontrib-mermaid" },
 ]
 
 [package.metadata]
@@ -1861,6 +1862,7 @@ docs = [
     { name = "sphinx-autobuild", specifier = ">=2025.8.25" },
     { name = "sphinx-copybutton", specifier = ">=0.5.2" },
     { name = "sphinx-design", specifier = ">=0.7.0" },
+    { name = "sphinxcontrib-mermaid", specifier = ">=2.1.1" },
 ]
 
 [[package]]
