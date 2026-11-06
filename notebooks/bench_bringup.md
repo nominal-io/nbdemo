@@ -74,7 +74,7 @@ dmm_hardware = Keysight34461A("TCPIP::192.168.1.20::INSTR")
 instro has drivers for power supplies, DMMs, electronic loads, oscilloscopes and other instruments
 from many vendors. The [instro documentation](https://instro.nominal.io) lists them. This notebook
 uses instro's virtual drivers, which simulate the instruments, so it needs no hardware. Only the
-driver changes on a real bench. The rest of the code stays the same.
+driver changes on a real bench; the rest of the code stays the same.
 
 The virtual instruments aren't wired together, so you set what each one measures:
 
@@ -96,7 +96,7 @@ eload_hardware = VirtualELoad(source_voltage=5.0, source_resistance=0.05)
 
 In Nominal, an asset represents a physical system: here, bench 7. Every instrument streams to the
 asset's `bench` dataset. A run marks a period of time on the asset: here, the bring-up session. To
-watch the data arrive during bring-up, open the run in Nominal with **Open in Nominal** on its card.
+watch the data arrive during bring-up, open the run in Nominal with **Open in Nominal** on its card, shown below.
 
 ```{code-cell} ipython3
 import pandas as pd
@@ -148,14 +148,16 @@ run
 
 ## Connect the instruments
 
-An instro instrument wraps a driver. `open()` connects to the instrument, and `start()` starts a
-background daemon. The daemon reads the instrument at a fixed interval, and sends each reading to the
-instrument's publishers. A `NominalCorePublisher` streams the readings to a Nominal dataset. instro
-names each channel `<instrument name>.<channel>`. The instrument's card in the notebook shows its
-latest readings.
+An instro instrument wraps a driver. `open()` connects to the
+instrument, and `start()` starts a background daemon which reads the
+instrument at a fixed interval. It sends each reading to the
+instrument's list of publishers; e.g., a `NominalCorePublisher`
+streams the readings to a Nominal dataset. instro names each channel
+`<instrument name>.<channel>`. The instrument's card in the notebook
+shows its latest readings.
 
-The setup below has mistakes that are easy to make on a new bench. The check in the next section
-finds them.
+The setup below includes a few typical mistakes that are easy to make on a new bench.
+In the next section, we'll perform a few checks that will find them.
 
 ### The power supply
 
@@ -189,7 +191,7 @@ time.sleep(5)
 psu
 ```
 
-The power supply measures the voltage, the current and the enable state of each output. The
+The power supply measures the voltage, the current, and the enable state of each output. The
 channels that end in `.cmd` are the commands that the code sent, such as the 12 V setpoint
 `ch1.voltage.cmd`. Each instrument also records its daemon's timing: `loop_time` is the time
 between two reads, and `daemon_work_time` is the time that one read takes.
@@ -234,17 +236,15 @@ The electronic load measures the voltage and the current at its input.
 
 ## Check the bench's data
 
-After bring-up, the bench runs a production test on each DUT. The test reads the bench's channels
-from Nominal, not from the cards. Before the bench runs the test, make sure that each channel that
-the test reads:
+After bring-up, the bench runs a production test on each DUT, by
+reading channel data from Nominal. Before the bench runs the test, we
+make sure that each channel that the test reads was published to
+Nominal, has a value in the expected range, and arrives at the desired
+rate.
 
-- gets to Nominal, under the name that the test uses
-- has a value in the expected range
-- arrives at the rate that the test needs
-
-The test spec gives this information. It names each channel that the test reads, with the range of
-values that the test expects. The test needs 10 Hz data. The lowest rate that the check accepts is
-9.5 Hz, because the interval between reads varies a little.
+The test spec is where we define these requirements.  The test needs
+10 Hz data. The lowest rate that the check accepts is 9.5 Hz, because
+the interval between reads varies a little.
 
 ```{code-cell} ipython3
 SPEC = {
@@ -261,9 +261,10 @@ SPEC = {
 }
 ```
 
-`check()` gets the last 10 s of the bench's data from Nominal, and compares each channel with the
-spec. It also reports each instrument that sends data but that the spec doesn't name, such as an
-instrument with the wrong name.
+`check()` is a function, defined below, that we wrote to retrieve the
+last 10 s of the bench's data from Nominal and to compare each channel
+with the spec above. It also reports instruments that sends data but
+aren't named in the spec.
 
 ```{code-cell} ipython3
 from nominal.thirdparty.pandas import datasource_to_dataframe
@@ -315,7 +316,7 @@ The power supply's channels pass. The check finds two problems:
 - The DMM's name is `dmm`, so its data arrives as `dmm.dc_voltage`, and `dut_dmm.dc_voltage` has
   no data.
 - The electronic load's channels have no data. Its code gives it no publishers, so its card shows
-  only the **in-memory buffer**, which feeds the card. Nothing goes to Nominal.
+  only the **in-memory buffer**, which feeds the card. Nothing ended up published to Nominal.
 
 An instrument's name is fixed when you create it. To rename the DMM, close it and connect it again
 as `dut_dmm`. You can add a publisher to a running instrument, so give the electronic load a Nominal
