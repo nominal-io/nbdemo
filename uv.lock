@@ -17,7 +17,6 @@ resolution-markers = [
 overrides = [
     { name = "pyvisa-py", marker = "sys_platform == 'never'" },
     { name = "textual", marker = "sys_platform == 'never'" },
-    { name = "thermocouples", marker = "sys_platform == 'never'" },
     { name = "typer", marker = "sys_platform == 'never'" },
 ]
 
@@ -1001,7 +1000,7 @@ wheels = [
 [[package]]
 name = "instro"
 version = "1.23.0"
-source = { git = "https://github.com/nominal-io/instro?branch=issue-709-docs-notebooks#4bfa99b3658f95663d70905c82a6fbda4fb6eb72" }
+source = { git = "https://github.com/nominal-io/instro?branch=preview%2Fnotebook-cards-flat-imports#0ed17db327007240c35a613e1caff704bd062cd2" }
 dependencies = [
     { name = "fastavro", extra = ["snappy"] },
     { name = "nominal" },
@@ -1011,7 +1010,7 @@ dependencies = [
     { name = "pyvisa" },
     { name = "pyvisa-py", marker = "sys_platform == 'never'" },
     { name = "textual", marker = "sys_platform == 'never'" },
-    { name = "thermocouples", marker = "sys_platform == 'never'" },
+    { name = "thermocouples" },
     { name = "typer", marker = "sys_platform == 'never'" },
 ]
 
@@ -1841,7 +1840,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "instro", git = "https://github.com/nominal-io/instro?branch=issue-709-docs-notebooks" },
+    { name = "instro", git = "https://github.com/nominal-io/instro?branch=preview%2Fnotebook-cards-flat-imports" },
     { name = "matplotlib", specifier = ">=3.10" },
     { name = "nominal", git = "https://github.com/nominal-io/nominal-client?branch=main" },
     { name = "numpy", specifier = ">=2.2" },

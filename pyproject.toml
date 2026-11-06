@@ -35,12 +35,12 @@ docs = [
 package = false
 default-groups = ["dev", "docs"]
 # The notebooks use instro's virtual instruments and Nominal publisher, which need none of
-# instro's VISA backends (pyvisa-py), command line (typer, textual) or thermocouple tables.
+# instro's VISA backends (pyvisa-py) or command line (typer, textual). The thermocouple tables stay:
+# `instro.drivers` imports every category, including DAQ, which imports them.
 # A marker that never matches leaves each one out.
 override-dependencies = [
     "pyvisa-py; sys_platform == 'never'",
     "textual; sys_platform == 'never'",
-    "thermocouples; sys_platform == 'never'",
     "typer; sys_platform == 'never'",
 ]
 
@@ -50,9 +50,9 @@ override-dependencies = [
 nominal = { git = "https://github.com/nominal-io/nominal-client", branch = "main" }
 # uv.lock pins the theme's commit; `uv lock --upgrade-package nominal-sphinx-theme` updates it.
 nominal-sphinx-theme = { git = "https://github.com/nominal-io/nominal-sphinx-theme" }
-# instro's notebook cards and publisher stats come from the issue-709 branches. Switch to the PyPI
-# release once they ship.
-instro = { git = "https://github.com/nominal-io/instro", branch = "issue-709-docs-notebooks" }
+# instro's notebook cards and publisher stats (#713) and its flat imports (#724) are merged on one preview
+# branch. Switch to the PyPI release once they ship.
+instro = { git = "https://github.com/nominal-io/instro", branch = "preview/notebook-cards-flat-imports" }
 
 [tool.ruff]
 # Notebook code is formatted at 85 columns, through Jupytext, so it fits the page: see the justfile.

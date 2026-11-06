@@ -66,7 +66,7 @@ On a real bench, each instrument uses the instro driver for its model, with the 
 address. For example, for a Keysight 34461A DMM on the network:
 
 ```python
-from instro.dmm.drivers import Keysight34461A
+from instro.drivers import Keysight34461A
 
 dmm_hardware = Keysight34461A("TCPIP::192.168.1.20::INSTR")
 ```
@@ -79,10 +79,8 @@ driver changes on a real bench; the rest of the code stays the same.
 The virtual instruments aren't wired together, so you set what each one measures:
 
 ```{code-cell} ipython3
-from instro.dmm import MeasurementFunction
-from instro.dmm.drivers import VirtualDMM
-from instro.eload.drivers import VirtualELoad
-from instro.psu.drivers import VirtualPSU
+from instro import MeasurementFunction
+from instro.drivers import VirtualDMM, VirtualELoad, VirtualPSU
 
 # The DUT draws 0.5 A from 12 V (24 ohm), and the fixture 0.5 A from 5 V (10 ohm).
 psu_hardware = VirtualPSU(num_channels=2, load_resistance={1: 24.0, 2: 10.0})
@@ -164,10 +162,9 @@ In the next section, we'll perform a few checks that will find them.
 ```{code-cell} ipython3
 import time
 
+from instro import InstroDMM, InstroELoad, InstroPSU, LoadMode
+from instro.lib import BackgroundDaemonConfig, NominalCorePublisher
 from instro.lib import set_display_options as set_instro_display_options
-from instro.lib.publishers import NominalCorePublisher
-from instro.lib.types import BackgroundDaemonConfig
-from instro.psu import InstroPSU
 
 # Show readable timestamps on instro's cards.
 set_instro_display_options(time_format="readable")
@@ -199,8 +196,6 @@ between two reads, and `daemon_work_time` is the time that one read takes.
 ### The DMM
 
 ```{code-cell} ipython3
-from instro.dmm import InstroDMM
-
 dmm = InstroDMM(
     name="dmm",
     driver=dmm_hardware,
@@ -219,8 +214,6 @@ The DMM measures one value: the DC voltage.
 ### The electronic load
 
 ```{code-cell} ipython3
-from instro.eload import InstroELoad, LoadMode
-
 eload = InstroELoad(name="dut_load", driver=eload_hardware)
 eload.open()
 # Sink a constant 1 A.
