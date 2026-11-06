@@ -34,7 +34,7 @@ block-beta
   columns 6
   block:shelf:3
     columns 3
-    dmm["DMM<br>dut_dmm"] psu["Power supply<br>bench_psu"] load["Electronic load<br>dut_load"]
+    dmm["DMM<br><code>dut_dmm</code>"] psu["Power supply<br><code>bench_psu</code>"] load["Electronic load<br><code>dut_load</code>"]
   end
   space:2
   pc["💻 Bench PC<br>instro"]
