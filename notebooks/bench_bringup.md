@@ -25,25 +25,32 @@ up.
 
 ## The bench
 
-The bench powers a power-conversion board, the device under test (DUT). Three instruments connect
-to the bench PC. On the PC, instro reads each instrument and streams its data to Nominal.
+The bench powers a power-conversion board, the device under test (DUT). The instruments stand on
+a shelf behind the fixture, which holds the DUT. Each instrument connects to the bench PC. On the
+PC, instro reads each instrument and streams its data to Nominal.
 
 ```mermaid
-flowchart LR
-    psu["Power supply<br>bench_psu"]
-    dmm["DMM<br>dut_dmm"]
-    load["Electronic load<br>dut_load"]
-    dut["DUT"]
-    rail["Fixture 5 V rail"]
-    pc["Bench PC<br>instro"]
-    nominal[("Nominal<br>Bench 7")]
-
-    psu -- "output 1: 12 V" --> dut
-    psu -- "output 2: 5 V" --> rail
-    dmm -. "measures" .-> rail
-    dut -- "5 V output" --> load
-    psu & dmm & load --- pc
-    pc -- "stream" --> nominal
+block-beta
+  columns 6
+  block:shelf:3
+    columns 3
+    dmm["DMM<br>dut_dmm"] psu["Power supply<br>bench_psu"] load["Electronic load<br>dut_load"]
+  end
+  space:2
+  pc["💻 Bench PC<br>instro"]
+  space:6
+  block:fixture:3
+    columns 3
+    rail["Fixture<br>5 V rail"] space dut["DUT"]
+  end
+  space:2
+  nominal[("Nominal")]
+  dmm -- "leads" --> rail
+  psu -- "5 V" --> rail
+  psu -- "12 V" --> dut
+  dut -- "5 V, 1 A" --> load
+  shelf -- "USB / LAN" --> pc
+  pc -- "stream" --> nominal
 ```
 
 | Instrument | instro name | Wiring |
@@ -274,7 +281,9 @@ def check(spec: dict, window_s: float = 10) -> pd.DataFrame:
     for instrument in sorted(sending - named):
         report[f"{instrument}.*"] = {"status": "not in spec"}
 
-    return pd.DataFrame.from_dict(report, orient="index").round(3)
+    report = pd.DataFrame.from_dict(report, orient="index").round(3)
+    # Show a value that a row doesn't have as an empty cell.
+    return report.astype(object).fillna("")
 ```
 
 ```{code-cell} ipython3

@@ -30,6 +30,8 @@ myst_heading_anchors = 3
 myst_enable_extensions = ["colon_fence", "deflist", "attrs_inline", "attrs_block"]
 # A plain ```mermaid fence renders in Sphinx, and in JupyterLab too.
 myst_fence_as_directive = ["mermaid"]
+# Size each diagram to its content, not to a fixed 500px.
+mermaid_height = "auto"
 
 # -- MyST-NB: run each notebook on build, as the nominal-client examples do ----------
 # The cache (in _build) re-runs only notebooks whose code changed. CI keeps it between builds.
