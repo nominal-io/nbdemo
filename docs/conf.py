@@ -55,6 +55,7 @@ html_theme = "shibuya"
 nominal_hub_url = "https://dev.nominal.io/"
 html_title = "Notebook Demos"
 html_static_path = ["_static"]
+html_css_files = ["nbdemo.css"]
 html_copy_source = False
 html_show_sourcelink = False
 
