@@ -26,7 +26,8 @@ up.
 ## The bench
 
 The bench powers a power-conversion board, the device under test (DUT). Each instrument connects
-to the bench PC. On the PC, instro reads each instrument and streams its data to Nominal.
+to the bench PC. On the PC, instro reads each instrument and streams its data to Nominal. Each
+instrument box shows the instrument's instro name.
 
 ```mermaid
 block-beta
@@ -51,12 +52,6 @@ block-beta
   shelf -- "USB / LAN" --> pc
   pc -- "stream" --> nominal
 ```
-
-| Instrument | instro name | Wiring |
-| --- | --- | --- |
-| Power supply | `bench_psu` | output 1: 12 V into the DUT. Output 2: the fixture's 5 V rail. |
-| DMM | `dut_dmm` | DC voltage across the 5 V rail |
-| Electronic load | `dut_load` | sinks 1 A from the DUT's 5 V output |
 
 On a real bench, each instrument uses the instro driver for its model, with the instrument's VISA
 address. For example, for a Keysight 34461A DMM on the network:
@@ -320,12 +315,12 @@ check(SPEC)
 
 The DMM and the electronic load now send their data to Nominal. The check finds two more problems:
 
-- `dut_dmm.dc_voltage` is 12 V, where the spec expects the 5 V rail. The DMM's leads are on output
-  1 of the power supply.
+- `dut_dmm.dc_voltage` is 12 V, where the spec expects the 5 V rail. The DMM's leads are on the
+  power supply's 12 V output.
 - The electronic load's channels are too slow. Its card shows **Background** every second, where
   the spec needs 10 Hz.
 
-Move the DMM's leads to output 2, and set the electronic load's daemon to 10 Hz:
+Move the DMM's leads to the 5 V rail, and set the electronic load's daemon to 10 Hz:
 
 ```{code-cell} ipython3
 # In the simulation, moving the leads changes the voltage that the virtual DMM reads.
