@@ -25,9 +25,18 @@ up.
 
 ## The bench
 
-The bench powers a power-conversion board, the device under test (DUT). Each instrument connects
-to the bench PC. On the PC, instro reads each instrument and streams its data to Nominal. Each
-instrument box shows the instrument's instro name.
+Bench 7 is a new test bench for a power-conversion board, the device under test (DUT). The DUT
+converts 12 V to 5 V. Before the bench can test DUTs, you bring it up: you connect each instrument,
+and make sure that its data is correct.
+
+- The power supply's output 1 gives the DUT its 12 V input. Output 2 gives 5 V to the fixture,
+  the board that holds the DUT.
+- The DMM measures the fixture's 5 V rail.
+- The electronic load draws 1 A from the DUT's 5 V output, and measures the voltage and current
+  there.
+
+Each instrument connects to the bench PC. On the PC, instro reads each instrument and streams its
+data to Nominal. Each instrument box shows the instrument's instro name.
 
 ```mermaid
 block-beta
@@ -67,22 +76,27 @@ from many vendors. The [instro documentation](https://instro.nominal.io) lists t
 uses instro's virtual drivers, which simulate the instruments, so it needs no hardware. Only the
 driver changes on a real bench. The rest of the code stays the same.
 
+The virtual instruments aren't wired together, so you set what each one measures:
+
 ```{code-cell} ipython3
 from instro.dmm import MeasurementFunction
 from instro.dmm.drivers import VirtualDMM
 from instro.eload.drivers import VirtualELoad
 from instro.psu.drivers import VirtualPSU
 
+# The DUT draws 0.5 A from 12 V (24 ohm), and the fixture 0.5 A from 5 V (10 ohm).
 psu_hardware = VirtualPSU(num_channels=2, load_resistance={1: 24.0, 2: 10.0})
+# The DMM's leads are on the wrong output of the power supply, so it measures 12 V.
 dmm_hardware = VirtualDMM({MeasurementFunction.DC_VOLTAGE: 12.0})
+# The DUT's 5 V output, which drops a little as the load draws current.
 eload_hardware = VirtualELoad(source_voltage=5.0, source_resistance=0.05)
 ```
 
 ## Connect the bench to Nominal
 
-The bench is a Nominal asset. Every instrument streams to the asset's `bench` dataset. A run marks
-the bring-up session. Keep the run open in Nominal during bring-up, with **Open in Nominal** on its
-card.
+In Nominal, an asset represents a physical system: here, bench 7. Every instrument streams to the
+asset's `bench` dataset. A run marks a period of time on the asset: here, the bring-up session. To
+watch the data arrive during bring-up, open the run in Nominal with **Open in Nominal** on its card.
 
 ```{code-cell} ipython3
 import pandas as pd
@@ -134,9 +148,14 @@ run
 
 ## Connect the instruments
 
-Each instrument's setup comes from an earlier script. An instro instrument reads its driver in a
-background daemon, and sends each reading to its publishers. A `NominalCorePublisher` streams the
-readings to a Nominal dataset. instro names each channel `<instrument name>.<channel>`.
+An instro instrument wraps a driver. `open()` connects to the instrument, and `start()` starts a
+background daemon. The daemon reads the instrument at a fixed interval, and sends each reading to the
+instrument's publishers. A `NominalCorePublisher` streams the readings to a Nominal dataset. instro
+names each channel `<instrument name>.<channel>`. The instrument's card in the notebook shows its
+latest readings.
+
+The setup below has mistakes that are easy to make on a new bench. The check in the next section
+finds them.
 
 ### The power supply
 
@@ -161,15 +180,19 @@ psu = InstroPSU(
     background_config=BackgroundDaemonConfig(interval=0.1),
 )
 psu.open()
+# Set each output's voltage and current limit, and turn the output on.
 psu.apply(current_limit=1.0, voltage=12.0, enable=True, channel=1)
 psu.apply(current_limit=1.0, voltage=5.0, enable=True, channel=2)
 psu.start()
-time.sleep(1)
+# The card shows the rate of each channel over the last 5 s.
+time.sleep(5)
 psu
 ```
 
-The power supply reads the voltage, the current and the enable state of each output. Each
-instrument also records its daemon's timing in `loop_time` and `daemon_work_time`.
+The power supply measures the voltage, the current and the enable state of each output. The
+channels that end in `.cmd` are the commands that the code sent, such as the 12 V setpoint
+`ch1.voltage.cmd`. Each instrument also records its daemon's timing: `loop_time` is the time
+between two reads, and `daemon_work_time` is the time that one read takes.
 
 ### The DMM
 
@@ -185,11 +208,11 @@ dmm = InstroDMM(
 dmm.open()
 dmm.set_measurement_function(MeasurementFunction.DC_VOLTAGE)
 dmm.start()
-time.sleep(1)
+time.sleep(5)
 dmm
 ```
 
-The DMM reads one value: the DC voltage.
+The DMM measures one value: the DC voltage.
 
 ### The electronic load
 
@@ -203,23 +226,25 @@ eload.set_mode(LoadMode.CC)
 eload.set_level(1.0)
 eload.output_enable(True)
 eload.start()
-time.sleep(1)
+time.sleep(5)
 eload
 ```
 
-The electronic load reads the voltage and the current at its input.
+The electronic load measures the voltage and the current at its input.
 
 ## Check the bench's data
 
-Each card shows what instro reads from its instrument. A test reads its data from Nominal. Before
-the test starts, make sure that each channel the test reads:
+After bring-up, the bench runs a production test on each DUT. The test reads the bench's channels
+from Nominal, not from the cards. Before the bench runs the test, make sure that each channel that
+the test reads:
 
 - gets to Nominal, under the name that the test uses
 - has a value in the expected range
 - arrives at the rate that the test needs
 
 The test spec gives this information. It names each channel that the test reads, with the range of
-values that the test expects, and the lowest rate that the test accepts.
+values that the test expects. The test needs 10 Hz data. The lowest rate that the check accepts is
+9.5 Hz, because the interval between reads varies a little.
 
 ```{code-cell} ipython3
 SPEC = {
@@ -236,8 +261,9 @@ SPEC = {
 }
 ```
 
-`check()` gets the last few seconds of the bench's data from Nominal, and compares each channel
-with the spec. It also reports an instrument that sends data but that the spec doesn't name.
+`check()` gets the last 10 s of the bench's data from Nominal, and compares each channel with the
+spec. It also reports each instrument that sends data but that the spec doesn't name, such as an
+instrument with the wrong name.
 
 ```{code-cell} ipython3
 from nominal.thirdparty.pandas import datasource_to_dataframe
@@ -286,13 +312,14 @@ check(SPEC)
 
 The power supply's channels pass. The check finds two problems:
 
-- The DMM's data arrives as `dmm.dc_voltage`, so `dut_dmm.dc_voltage` has no data. The script
-  named the DMM `dmm`.
-- The electronic load's channels have no data. Its card shows that its only publisher is the
-  **in-memory buffer**, so nothing goes to Nominal.
+- The DMM's name is `dmm`, so its data arrives as `dmm.dc_voltage`, and `dut_dmm.dc_voltage` has
+  no data.
+- The electronic load's channels have no data. Its code gives it no publishers, so its card shows
+  only the **in-memory buffer**, which feeds the card. Nothing goes to Nominal.
 
-To rename the DMM, edit its script and connect it again. Give the electronic load a Nominal
-publisher.
+An instrument's name is fixed when you create it. To rename the DMM, close it and connect it again
+as `dut_dmm`. You can add a publisher to a running instrument, so give the electronic load a Nominal
+publisher without a restart.
 
 ```{code-cell} ipython3
 dmm.close()
@@ -317,10 +344,10 @@ The DMM and the electronic load now send their data to Nominal. The check finds 
 
 - `dut_dmm.dc_voltage` is 12 V, where the spec expects the 5 V rail. The DMM's leads are on the
   power supply's 12 V output.
-- The electronic load's channels are too slow. Its card shows **Background** every second, where
-  the spec needs 10 Hz.
+- The electronic load's channels are too slow. Its code gives no `background_config`, so instro
+  reads it at the default interval of 1 s. Its card shows **Background** as every 1 s.
 
-Move the DMM's leads to the 5 V rail, and set the electronic load's daemon to 10 Hz:
+Move the DMM's leads to the 5 V rail, and make the daemon read the electronic load every 100 ms:
 
 ```{code-cell} ipython3
 # In the simulation, moving the leads changes the voltage that the virtual DMM reads.
@@ -339,6 +366,7 @@ Every channel in the spec passes the check.
 # Closing an instrument stops its daemon and flushes its stream to Nominal.
 for instrument in [psu, dmm, eload]:
     instrument.close()
+# End the run.
 run.update(end=pd.Timestamp.now(tz="UTC").ceil("s"))
 bench
 ```
