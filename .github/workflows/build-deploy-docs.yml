@@ -100,6 +100,15 @@ jobs:
           # The docs hub (dev.nominal.io/demos/) downloads this upload, so keep it 90 days.
           retention-days: 90
 
+  # The check main's ruleset requires: a theme bump PR (bump-theme.yml) needs a passing docs build,
+  # and every other PR passes, whatever the build did. See nominal-sphinx-theme's README, "Docs gate".
+  docs-gate:
+    needs: build
+    if: always()
+    uses: nominal-io/nominal-sphinx-theme/.github/workflows/docs-gate.yml@48f813bce57ab55ebcaac19135a8851ca0cf8195 # main, 2026-11-05
+    with:
+      docs-result: ${{ needs.build.result }}
+
   deploy:
     name: Deploy github pages
     if: github.ref == 'refs/heads/main'
