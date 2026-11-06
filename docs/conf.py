@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinxcontrib.mermaid",
     "gallery",
     "nominal_sphinx_theme",
 ]
@@ -27,6 +28,8 @@ exclude_patterns = ["**/.ipynb_checkpoints"]
 # -- MyST ---------------------------------------------------------------------
 myst_heading_anchors = 3
 myst_enable_extensions = ["colon_fence", "deflist", "attrs_inline", "attrs_block"]
+# A plain ```mermaid fence renders in Sphinx, and in JupyterLab too.
+myst_fence_as_directive = ["mermaid"]
 
 # -- MyST-NB: run each notebook on build, as the nominal-client examples do ----------
 # The cache (in _build) re-runs only notebooks whose code changed. CI keeps it between builds.
@@ -49,6 +52,8 @@ html_theme = "shibuya"
 # Also published at dev.nominal.io/demos/: the header links back to the hub.
 nominal_hub_url = "https://dev.nominal.io/"
 html_title = "Nominal demos"
+html_static_path = ["_static"]
+html_css_files = ["nbdemo.css"]
 html_copy_source = False
 html_show_sourcelink = False
 

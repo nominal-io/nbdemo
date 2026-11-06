@@ -1,0 +1,5 @@
+/* pandas right-aligns a DataFrame's headers, and the theme left-aligns table cells. */
+.yue table.dataframe th,
+.yue table.dataframe td {
+  text-align: right;
+}
