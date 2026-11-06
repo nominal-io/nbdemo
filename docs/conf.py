@@ -10,7 +10,7 @@ from nominal_sphinx_theme import theme_options
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE / "_ext"))
 
-project = "Nominal demos"
+project = "Notebook Demos"
 copyright = "Nominal, Inc."
 
 extensions = [
@@ -48,7 +48,7 @@ intersphinx_mapping = {"nominal": ("https://nominal-io.github.io/nominal-client"
 html_theme = "shibuya"
 # Also published at dev.nominal.io/demos/: the header links back to the hub.
 nominal_hub_url = "https://dev.nominal.io/"
-html_title = "Nominal demos"
+html_title = "Notebook Demos"
 html_copy_source = False
 html_show_sourcelink = False
 
