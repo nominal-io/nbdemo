@@ -1942,12 +1942,13 @@ wheels = [
 [[package]]
 name = "nominal-sphinx-theme"
 version = "0.1.0"
-source = { git = "https://github.com/nominal-io/nominal-sphinx-theme#2a51f774c2f7f6d0813edcb34f77d9d4ff0ccc8e" }
+source = { git = "https://github.com/nominal-io/nominal-sphinx-theme#4ff295562f5c5cffa48cbc083637ed2c70304f35" }
 dependencies = [
     { name = "myst-parser" },
     { name = "shibuya" },
     { name = "sphinx", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "sphinx", version = "9.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
+    { name = "sphinxcontrib-mermaid" },
 ]
 
 [[package]]

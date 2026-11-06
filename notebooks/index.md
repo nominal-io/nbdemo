@@ -1,4 +1,4 @@
-# Nominal demos
+# Notebook Demos
 
 {.lead}
 Demo notebooks for the [Nominal](https://nominal.io) platform, shown as they were last run.
