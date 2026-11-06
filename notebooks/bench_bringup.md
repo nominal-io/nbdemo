@@ -25,9 +25,8 @@ up.
 
 ## The bench
 
-The bench powers a power-conversion board, the device under test (DUT). The instruments stand on
-a shelf behind the fixture, which holds the DUT. Each instrument connects to the bench PC. On the
-PC, instro reads each instrument and streams its data to Nominal.
+The bench powers a power-conversion board, the device under test (DUT). Each instrument connects
+to the bench PC. On the PC, instro reads each instrument and streams its data to Nominal.
 
 ```mermaid
 block-beta
