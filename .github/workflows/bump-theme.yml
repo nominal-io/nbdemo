@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   bump:
-    uses: nominal-io/nominal-sphinx-theme/.github/workflows/bump-theme.yml@4ff295562f5c5cffa48cbc083637ed2c70304f35 # main, 2026-11-06
+    uses: nominal-io/nominal-sphinx-theme/.github/workflows/bump-theme.yml@6b72c49c23c1d9139af3f6e74ee57e494ca4f6fe # main, 2026-11-09
     secrets:
       NOMBOT_APP_ID: ${{ secrets.NOMBOT_APP_ID }}
       NOMBOT_PRIVATE_KEY: ${{ secrets.NOMBOT_PRIVATE_KEY }}
