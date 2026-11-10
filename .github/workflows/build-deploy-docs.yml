@@ -88,7 +88,7 @@ jobs:
       # and links the preview, or the failed run, as the "docs preview" commit status
       - name: "Built docs: upload and preview"
         if: always() && github.event_name == 'pull_request'
-        uses: nominal-io/nominal-sphinx-theme/.github/actions/docs-preview@4ff295562f5c5cffa48cbc083637ed2c70304f35 # main, 2026-11-06
+        uses: nominal-io/nominal-sphinx-theme/.github/actions/docs-preview@6b72c49c23c1d9139af3f6e74ee57e494ca4f6fe # main, 2026-11-09
         with:
           path: ./_build/html
           job-status: ${{ job.status }}
@@ -105,7 +105,7 @@ jobs:
   docs-gate:
     needs: build
     if: always()
-    uses: nominal-io/nominal-sphinx-theme/.github/workflows/docs-gate.yml@4ff295562f5c5cffa48cbc083637ed2c70304f35 # main, 2026-11-06
+    uses: nominal-io/nominal-sphinx-theme/.github/workflows/docs-gate.yml@6b72c49c23c1d9139af3f6e74ee57e494ca4f6fe # main, 2026-11-09
     with:
       docs-result: ${{ needs.build.result }}
 
