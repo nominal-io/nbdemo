@@ -5,7 +5,7 @@ from pathlib import Path
 
 from nominal.config import NominalConfig
 from nominal.exceptions import NominalConfigError
-from nominal_sphinx_theme import theme_options
+from nominal_sphinx_theme import intersphinx, theme_options
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE / "_ext"))
@@ -46,8 +46,9 @@ try:
 except (FileNotFoundError, NominalConfigError):
     nb_execution_excludepatterns = ["**/*.md"]
 
-# -- Intersphinx: references such as {py:class}`~nominal.core.Asset` link to the client's docs ----------
-intersphinx_mapping = {"nominal": ("https://nominal-io.github.io/nominal-client", None)}
+# -- Intersphinx: references such as {py:class}`~nominal.core.Asset`, and the names in code cells
+# (through the theme's sphinx-codeautolink), link to the client's and instro's docs ----------
+intersphinx_mapping = intersphinx("nominal", "instro")
 
 # -- HTML: nominal-sphinx-theme (Shibuya, styled like the other Nominal docs) ----
 html_theme = "shibuya"
