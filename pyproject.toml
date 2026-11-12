@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.10",
     "scikit-rf>=1.8",
     "instro",
+    "sigmf>=1.14.0",
 ]
 
 [dependency-groups]

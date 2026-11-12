@@ -1819,6 +1819,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "scikit-rf" },
+    { name = "sigmf" },
 ]
 
 [package.dev-dependencies]
@@ -1846,6 +1847,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "scikit-rf", specifier = ">=1.8" },
+    { name = "sigmf", specifier = ">=1.14.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -3027,6 +3029,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ba/d2/8017988e02791162b286576116fedd200ed33e8d8af3579ab3587df3d3d0/shibuya-2026.7.12.tar.gz", hash = "sha256:9496606f5b95595511ad86b773d74b4b8d694a4dcc2f848e6ec34e2ad71d9060", size = 86545, upload-time = "2026-07-11T15:41:16.342Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/84/70/9ca2b8187666be1bcfa82b938107247159f5b566a22b5e43be27df45039d/shibuya-2026.7.12-py3-none-any.whl", hash = "sha256:0a2c0c109e7cc47fc650b01feb671d267c0ffe2e39c98f3529e32d723a9c9d9b", size = 104092, upload-time = "2026-07-11T15:41:14.936Z" },
+]
+
+[[package]]
+name = "sigmf"
+version = "1.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "defusedxml" },
+    { name = "jsonschema" },
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/df/f2/91f47fad1e4860a4935821eccf330c2f6392273e1ef0fa21fd3ba3b7fb1e/sigmf-1.14.0.tar.gz", hash = "sha256:ff74c41a2adc8fb0e3b825f5f1a0af0d11c0eb91a69ed66485ddac1b5a75ef5b", size = 95883, upload-time = "2026-10-19T15:54:40.383Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/6b/0aa61396ef5ccb21eb0b83e27bbda330f5a641d7aa734f589dff6395adec/sigmf-1.14.0-py3-none-any.whl", hash = "sha256:c8e935a70e60700f04aa54a46310796a36a49cf2367cc14e9a7856cbf28fdd43", size = 67912, upload-time = "2026-10-19T15:54:38.931Z" },
 ]
 
 [[package]]
