@@ -15,14 +15,14 @@ kernelspec:
 Telemetry and radio data from one flight
 
 Upload a one-minute flight over Washington, DC, by a plane that carries a software-defined
-radio (SDR). The plane is one Nominal asset with two datasets: `telemetry`, the flight data, and
-`sdr`, the radio's IQ samples. Both come from [`nbdemo.data`](reference/data.md): `aero.flight_dc`
+radio (SDR). The plane is one Nominal {py:class}`asset <nominal.core.Asset>` with two
+{py:class}`datasets <nominal.core.Dataset>`: `telemetry`, the flight data, and `sdr`, the radio's IQ samples. Both come from [`nbdemo.data`](reference/data.md): `aero.flight_dc`
 is simulated telemetry, and `rf.sigmf_synthetic` is a [SigMF](https://sigmf.org) recording,
 IQEngine's `synthetic` example by Marc
 ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), repeated to last as long as the
 flight.
 
-**Requirements:** a `default` [profile](https://nominal-io.github.io/nominal-client/guides/api-keys-setup/)
+**Requirements:** a `default` [profile](inv:nominal:std:doc#guides/api-keys-setup)
 for the Nominal Python Client, and the packages the notebook imports, including `nbdemo[all]`.
 [Running the notebooks](running.md) explains how to set them up.
 
@@ -32,6 +32,8 @@ it, so the asset holds one flight: this execution's.
 +++
 
 ## Setup
+
+A {py:class}`~nominal.core.NominalClient` connects to Nominal with the profile.
 
 ```{code-cell} ipython3
 import numpy as np
@@ -64,12 +66,8 @@ for old_asset in client.search_assets(properties={"example": "flight_sdr"}):
 
 ## Load the flight
 
-The flight is 60 seconds, and it ends when the notebook runs. The plane starts at the Lincoln
-Memorial and flies east along the National Mall at 50 m/s, climbing to 300 m. After 18 seconds
-it banks right by 25° and turns about 180° to fly back west. A light wind from the west pushes
-it east, so its ground track differs from its heading.
-
-`flight_dc.df` has the telemetry at 10 Hz. Its timestamps are fixed, so shift them to end now.
+`flight_dc.df` has 60 seconds of telemetry at 10 Hz. Its timestamps are fixed, so shift them to end
+now.
 
 ```{code-cell} ipython3
 DURATION = 60  # seconds
@@ -112,8 +110,9 @@ print(
 
 ## Create the plane
 
-One asset, the plane, with a dataset for each source. A run marks the flight, so both datasets can
-be opened for the same time range.
+One {py:class}`asset <nominal.core.Asset>`, the plane, with a {py:class}`dataset <nominal.core.Dataset>`
+for each source. A {py:class}`run <nominal.core.Run>` marks the flight, so both datasets can be opened for
+the same time range.
 
 ```{code-cell} ipython3
 plane = client.get_or_create_asset_by_properties(
@@ -142,7 +141,7 @@ plane
 
 ## Upload
 
-Each channel goes through a write stream: one call per channel with every timestamp and value.
+Each channel goes through a {py:meth}`write stream <nominal.core.Dataset.get_write_stream>`: one call per channel with every timestamp and value.
 Closing the stream waits for the data to be sent.
 
 ```{code-cell} ipython3
