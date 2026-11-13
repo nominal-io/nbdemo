@@ -1,14 +1,11 @@
 ---
 jupytext:
   text_representation:
-    extension: .md
     format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.19.6
 kernelspec:
-  name: python3
   display_name: Python 3 (ipykernel)
   language: python
+  name: python3
 ---
 
 # Adding a dataset
@@ -17,7 +14,7 @@ kernelspec:
 A dataset is a folder with a `dataset.toml` and its small files, in the folder of its domain. This page
 builds one in a temporary folder and loads it.
 
-Put a dataset in the package at `src/nominal_samples/<domain>/<name>/`. The domain is `aero`, `med` or `rf`.
+Put a dataset in the package at `nominal-samples/src/nominal_samples/<domain>/<name>/`. The domain is `aero`, `med` or `rf`.
 The name is the Python name that users import.
 
 ## Write the files and the manifest
@@ -32,7 +29,9 @@ from pathlib import Path
 
 folder = Path(tempfile.mkdtemp()) / "bench_voltage"
 folder.mkdir()
-(folder / "voltage.csv").write_text("time,volts\n2026-01-01T12:00:00Z,3.30\n2026-01-01T12:00:01Z,3.31\n")
+(folder / "voltage.csv").write_text(
+    "time,volts\n2026-01-01T12:00:00Z,3.30\n2026-01-01T12:00:01Z,3.31\n"
+)
 ```
 
 `just hash-files <folder>` prints the `[[files]]` entries. This cell computes the same values:

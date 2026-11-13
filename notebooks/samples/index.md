@@ -1,14 +1,12 @@
 ---
+icon: database
 jupytext:
   text_representation:
-    extension: .md
     format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.19.6
 kernelspec:
-  name: python3
   display_name: Python 3 (ipykernel)
   language: python
+  name: python3
 ---
 
 # nominal-samples
@@ -29,7 +27,7 @@ until you use the dataset.
 
 +++
 
-### As Path 
+### As Path
 
 ```{code-cell} ipython3
 from nominal_samples.med import ecg_mitbih_119
@@ -42,7 +40,7 @@ has each only where it makes sense; see {py:attr}`~nominal_samples.Dataset.forms
 
 +++
 
-### As Native 
+### As Native
 
 ```{code-cell} ipython3
 ecg_mitbih_119.native  # a wfdb.Record
@@ -63,11 +61,11 @@ import nominal_samples as ns
 ns.catalog("rf")
 ```
 
-[Install](guides/install.md) the package with the extras for the formats you read.
-[Using the paths](guides/paths.md) covers testing a file loader, and
-[Using the loaded data](guides/loaded.md) covers `native` and `df`, including
+[Install](install.md) the package with the extras for the formats you read.
+[Using the paths](paths.md) covers testing a file loader, and
+[Using the loaded data](loaded.md) covers `native` and `df`, including
 {py:class}`~nominal_samples.FormUnavailable`, which a dataset raises for a form it does not have.
-The [catalog](guides/catalog.md) lists every dataset, and [Adding a dataset](guides/adding-datasets.md)
+The [catalog](catalog.md) lists every dataset, and [Adding a dataset](adding-datasets.md)
 explains how to contribute one.
 
 ```{toctree}
@@ -75,11 +73,11 @@ explains how to contribute one.
 :hidden:
 
 Intro <self>
-guides/install
-guides/paths
-guides/loaded
-guides/catalog
-guides/adding-datasets
+install
+paths
+loaded
+catalog
+adding-datasets
 ```
 
 ```{toctree}

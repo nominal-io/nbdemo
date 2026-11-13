@@ -1,14 +1,11 @@
 ---
 jupytext:
   text_representation:
-    extension: .md
     format_name: myst
-    format_version: 0.13
-    jupytext_version: 1.19.6
 kernelspec:
-  name: python3
   display_name: Python 3 (ipykernel)
   language: python
+  name: python3
 ---
 
 # Using the paths
@@ -55,9 +52,8 @@ Using `path` or `paths` downloads whatever is missing. The `.sigmf-data` file of
 so it downloads the first time, to the cache. `is_local` says whether a dataset's files are all present:
 
 ```{code-cell} ipython3
----
-tags: [remove-cell]
----
+:tags: [remove-cell]
+
 import os
 import tempfile
 

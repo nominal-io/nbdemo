@@ -13,7 +13,7 @@
 ## Domains
 
 Each domain module resolves dataset names when you import them, so there is no fixed list of attributes.
-`dir()` of a domain lists its datasets; the {doc}`catalog <../guides/catalog>` shows them all.
+`dir()` of a domain lists its datasets; the {doc}`catalog <../catalog>` shows them all.
 
 ```{eval-rst}
 .. automodule:: nominal_samples.aero

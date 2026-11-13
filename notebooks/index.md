@@ -14,4 +14,5 @@ Each one uses the [Nominal Python Client](https://nominal-io.github.io/nominal-c
 
 Demos <self>
 *
+*/index
 ```

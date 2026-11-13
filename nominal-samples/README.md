@@ -13,4 +13,4 @@ ecg_mitbih_119.df      # a pandas.DataFrame
 ```
 
 Install the extras for the formats you read: `pip install 'nominal-samples[med]'`. The docs are in
-`docs/`; build them with `just build-docs`.
+`notebooks/samples/` of the repository, and are published with the other demos.

@@ -45,6 +45,10 @@ jobs:
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
       - name: Check notebook code
         run: just check
+      - name: Check and test nominal-samples
+        run: |
+          just check-samples
+          just test-samples
       # The notebooks connect with the "default" profile. Without the NOMINAL_DOCS_KEY secret,
       # the build still succeeds, but the pages show the notebooks without outputs.
       - name: Write the Nominal profile

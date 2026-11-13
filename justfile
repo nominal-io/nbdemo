@@ -37,4 +37,20 @@ build-docs:
 
 # preview the site at http://127.0.0.1:8000, rebuilding on changes
 serve-docs:
-    uv run sphinx-autobuild -b dirhtml -c docs notebooks _build/html --watch docs --ignore "**/.ipynb_checkpoints/**" --ignore "**/rf_radio_data/**"
+    uv run sphinx-autobuild -b dirhtml -c docs notebooks _build/html --watch docs --watch nominal-samples/src --ignore "**/.ipynb_checkpoints/**" --ignore "**/rf_radio_data/**"
+
+# run the nominal-samples tests; `just test-samples -m network` also downloads real files
+test-samples *args:
+    cd nominal-samples && uv run pytest "$@"
+
+# check the nominal-samples formatting, lint and types
+check-samples:
+    cd nominal-samples && uv run ruff format --check && uv run ruff check && uv run mypy
+
+# regenerate nominal-samples' aero/flight_dc telemetry; then update its sha256 in dataset.toml with `just hash-files`
+gen-flight:
+    cd nominal-samples && uv run --group gen python gen/aero_flight_dc.py
+
+# print [[files]] manifest entries for a nominal-samples dataset folder, such as nominal-samples/src/nominal_samples/aero/flight_dc
+hash-files folder:
+    uv run python nominal-samples/scripts/hash_files.py "{{ folder }}"

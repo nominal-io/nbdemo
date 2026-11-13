@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.10",
     "scikit-rf>=1.8",
     "instro",
+    "nominal-samples[all]",
 ]
 
 [dependency-groups]
@@ -45,6 +46,8 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
+# Sample datasets for the notebooks and for other Nominal projects; its own package, in nominal-samples/.
+nominal-samples = { path = "nominal-samples", editable = true }
 # The notebook cards (#1260) and their diagrams (#1272) are on main, but not yet in a release.
 # Switch to the PyPI release once it ships.
 nominal = { git = "https://github.com/nominal-io/nominal-client", branch = "main" }

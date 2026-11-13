@@ -26,6 +26,7 @@ The notebooks need a `default`
 notebooks/          site root: index.md, running.md and one .md per demo
 docs/conf.py        Sphinx config
 docs/_ext/          the notebook-gallery directive behind the home page cards
+nominal-samples/    the sample-datasets package, with its own tests (its docs are notebooks/samples/)
 .jupyter/           makes JupyterLab open .md files as notebooks
 ```
 
@@ -52,6 +53,17 @@ docs/_ext/          the notebook-gallery directive behind the home page cards
    just build-docs   # run changed notebooks and build; warnings fail the build
    just serve-docs   # preview at http://127.0.0.1:8000
    ```
+
+## Sample datasets
+
+`nominal-samples/` is a Python package of sample datasets that other Nominal repositories can use. The
+notebooks install it from there. Its docs are the pages in `notebooks/samples/`.
+
+```shell
+just test-samples    # its tests
+just check-samples   # its formatting, lint and types
+just gen-flight      # regenerate the simulated flight telemetry
+```
 
 ## Running on build
 
