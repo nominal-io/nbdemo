@@ -21,7 +21,7 @@ def get(kind: str, fmt: str) -> Callable[[Any], Any]:
 
 
 def require(module: str, extra: str) -> Any:
-    """Import ``module``, or raise `MissingExtraError` naming the extra that installs it."""
+    """Import ``module``, or raise :py:class:`~nominal_samples.MissingExtraError` naming the extra that installs it."""
     try:
         return import_module(module)
     except ImportError as error:

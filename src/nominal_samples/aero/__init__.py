@@ -1,4 +1,4 @@
-"""The aero datasets. Import one by name; see `nominal_samples.catalog` for the list."""
+"""The aero datasets. Import one by name; see :py:func:`nominal_samples.catalog` for the list."""
 
 from __future__ import annotations
 

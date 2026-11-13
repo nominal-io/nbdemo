@@ -13,7 +13,7 @@ class ChecksumError(SamplesError):
 class FormUnavailable(AttributeError):
     """A dataset has no ``native`` or ``df`` form.
 
-    Subclasses `AttributeError`, so ``hasattr(dataset, "df")`` is ``False`` for such a dataset.
+    Subclasses :py:class:`AttributeError`, so ``hasattr(dataset, "df")`` is ``False`` for such a dataset.
     """
 
 

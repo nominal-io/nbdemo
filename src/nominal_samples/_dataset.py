@@ -38,7 +38,7 @@ class Dataset:
         ecg_mitbih_119.df      # a pandas.DataFrame
 
     Nothing is downloaded or parsed until you use ``path``, ``paths``, ``native`` or ``df``. Files that do
-    not ship in the package are downloaded on first use and kept in `~nominal_samples.cache_dir`.
+    not ship in the package are downloaded on first use and kept in :py:func:`~nominal_samples.cache_dir`.
 
     Args:
         domain: The domain the dataset is in, such as ``"med"``.
@@ -160,7 +160,7 @@ class Dataset:
     def path(self) -> Path:
         """The path of the dataset's main file, downloading the dataset's files if needed.
 
-        The other files are beside it; see `paths`.
+        The other files are beside it; see :py:attr:`paths`.
         """
         return self.paths[self._primary]
 

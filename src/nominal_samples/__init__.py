@@ -1,6 +1,6 @@
 """Sample datasets for Nominal's open-source projects.
 
-Datasets are grouped by domain: `~nominal_samples.aero`, `~nominal_samples.med` and `~nominal_samples.rf`.
+Datasets are grouped by domain: :py:mod:`~nominal_samples.aero`, :py:mod:`~nominal_samples.med` and :py:mod:`~nominal_samples.rf`.
 Import one from its domain; each has a path, and where it makes sense a native object and a DataFrame::
 
     from nominal_samples.med import ecg_mitbih_119
