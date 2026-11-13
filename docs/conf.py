@@ -47,20 +47,20 @@ nb_execution_timeout = 600  # per cell; uploads wait for Nominal to ingest the d
 try:
     NominalConfig.from_yaml().get_profile("default")
 except (FileNotFoundError, NominalConfigError):
-    # The pages under samples/ need no profile, so they always run.
+    # The pages under reference/ need no profile, so they always run.
     nb_execution_excludepatterns = [
         str(path.relative_to(HERE.parent / "notebooks"))
         for path in (HERE.parent / "notebooks").rglob("*.md")
-        if "samples" not in path.relative_to(HERE.parent / "notebooks").parts
+        if "reference" not in path.relative_to(HERE.parent / "notebooks").parts
     ]
 
 # Run the notebooks in this environment's kernel. A `python3` kernel in the user's own Jupyter folder would
 # otherwise win, and it can point at another project's environment.
 os.environ["JUPYTER_PATH"] = str(Path(sys.prefix) / "share" / "jupyter")
-# The samples pages download into a folder of their own, so a build never depends on what is cached.
-os.environ["NOMINAL_SAMPLES_CACHE"] = str(HERE.parent / "_build" / "samples-cache")
+# The reference pages download into a folder of their own, so a build never depends on what is cached.
+os.environ["NBDEMO_CACHE"] = str(HERE.parent / "_build" / "samples-cache")
 
-# -- Autodoc: the nominal-samples reference pages, written from its docstrings ----------------
+# -- Autodoc: the nbdemo.data reference pages, written from its docstrings ----------------
 autodoc_member_order = "bysource"
 autodoc_preserve_defaults = True
 python_use_unqualified_type_names = True
@@ -91,5 +91,8 @@ html_show_sourcelink = False
 html_sidebars = {"**": ["sidebars/localtoc.html"]}
 html_theme_options = theme_options(
     toctree_maxdepth=1,
-    nav_links=[{"title": "Demos", "url": "index"}],
+    nav_links=[
+        {"title": "Demos", "url": "index"},
+        {"title": "Reference", "url": "reference/index"},
+    ],
 )

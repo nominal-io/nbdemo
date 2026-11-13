@@ -6,13 +6,29 @@ Each one uses the [Nominal Python Client](https://nominal-io.github.io/nominal-c
 {doc}`Running the notebooks <running>` explains how to open and run them yourself.
 
 ```{notebook-gallery}
+:exclude: reference
 ```
 
 ```{toctree}
+:caption: Demos
 :hidden:
 :glob:
 
 Demos <self>
 *
-*/index
+```
+
+```{toctree}
+:caption: Reference
+:hidden:
+
+Reference <reference/index>
+reference/site
+Sample data <reference/data>
+Install <reference/data-install>
+Using the paths <reference/data-paths>
+Using the loaded data <reference/data-loaded>
+Catalog <reference/data-catalog>
+Adding a dataset <reference/data-adding>
+nbdemo.data API <reference/data-api>
 ```
