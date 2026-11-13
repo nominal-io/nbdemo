@@ -57,6 +57,9 @@ except (FileNotFoundError, NominalConfigError):
 # Run the notebooks in this environment's kernel. A `python3` kernel in the user's own Jupyter folder would
 # otherwise win, and it can point at another project's environment.
 os.environ["JUPYTER_PATH"] = str(Path(sys.prefix) / "share" / "jupyter")
+# Plotly figures as HTML (plotly.js from its CDN), so they render on the page and stay interactive.
+# The kernels that run the notebooks inherit this; interactive Jupyter is unaffected.
+os.environ["PLOTLY_RENDERER"] = "notebook_connected"
 # The reference pages download into a folder of their own, so a build never depends on what is cached.
 os.environ["NBDEMO_CACHE"] = str(HERE.parent / "_build" / "samples-cache")
 
