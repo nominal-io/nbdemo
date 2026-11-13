@@ -14,6 +14,8 @@ kernelspec:
 {.lead}
 Telemetry and radio data from one flight
 
+## Intro
+
 Upload a two-minute flight near Washington, DC, by a plane that carries a software-defined
 radio (SDR). The plane is one Nominal {py:class}`asset <nominal.core.Asset>` with two
 {py:class}`datasets <nominal.core.Dataset>`: `telemetry`, the flight data, and `sdr`, the radio's IQ samples. Both come from [`nbdemo.data`](reference/data.md): `aero.flight_dc`
@@ -31,7 +33,7 @@ it, so the asset holds one flight: this execution's.
 
 +++
 
-## Setup
+### Setup
 
 A {py:class}`~nominal.core.NominalClient` connects to Nominal with the profile.
 
@@ -67,7 +69,9 @@ for old_asset in client.search_assets(properties={"example": "flight_sdr"}):
         old_dataset.archive()
 ```
 
-## Load the flight
+## Gather data
+
+### Load the flight
 
 `flight_dc.df` has 120 seconds of telemetry at 10 Hz: a takeoff, a climb and three turns. Its timestamps are fixed, so shift them to end
 now.
@@ -85,7 +89,7 @@ telemetry.index = (flight_start + (telemetry.index - telemetry.index[0])).as_uni
 telemetry.round(2).head(5)
 ```
 
-## Build the SDR data
+### Build the SDR data
 
 The recording is 1,000,000 complex samples at 480 kS/s. `RATE_FACTOR` scales the sample rate the
 data is stamped with. At 1.0 the SDR runs at the recorded 480 kS/s, and the flight takes 57.6
@@ -111,7 +115,7 @@ print(
 )
 ```
 
-## Preview the data
+### Preview the data
 
 Before uploading, check where the plane flew and what the radio heard. The map shows the flight's
 ground track, with its start and end marked.
@@ -152,7 +156,9 @@ iq_preview = pd.DataFrame(
 px.line(iq_preview)
 ```
 
-## Create the plane
+## Connect with Nominal
+
+### Create the plane
 
 One {py:class}`asset <nominal.core.Asset>`, the plane, with a {py:class}`dataset <nominal.core.Dataset>`
 for each source. A {py:class}`run <nominal.core.Run>` marks the flight, so both datasets can be opened for
@@ -183,7 +189,7 @@ run = plane.create_run(
 plane
 ```
 
-## Upload
+### Upload
 
 Each channel goes through a {py:meth}`write stream <nominal.core.Dataset.get_write_stream>`: one call per channel with every timestamp and value.
 Closing the stream waits for the data to be sent.
