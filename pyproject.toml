@@ -1,25 +1,54 @@
 [project]
 name = "nbdemo"
 version = "0.1.0"
-description = "Demo notebooks for the Nominal platform, published to GitHub Pages."
+description = "Demo notebooks for the Nominal platform, and the sample data they use (nbdemo.data)."
 readme = "README.md"
 requires-python = ">=3.12"
+# nbdemo.data has no dependencies of its own. It imports a format's library on first use; install the
+# extra for the formats you read, such as `nbdemo[med]`. The notebooks' own dependencies are in the
+# `notebooks` group below.
+dependencies = []
+
+[project.optional-dependencies]
+pandas = ["pandas>=2.0"]
+wfdb = ["wfdb>=4.1", "pandas>=2.0"]
+sigmf = ["sigmf>=1.2"]
+plotly = ["plotly>=6.0"]
+med = ["nbdemo[pandas,wfdb]"]
+rf = ["nbdemo[sigmf]"]
+aero = ["nbdemo[pandas]"]
+all = ["nbdemo[med,rf,aero]"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nbdemo"]
+# Fetched files are not in the repo; everything else under the package ships.
+exclude = ["**/__pycache__", "**/*.pyc"]
+
+[dependency-groups]
 # What the notebooks import. Add a demo's dependencies here when you add the demo.
-dependencies = [
+notebooks = [
     "nominal",
     "numpy>=2.2",
     "pandas>=2.2",
     "matplotlib>=3.10",
     "scikit-rf>=1.8",
     "instro",
+    "nbdemo[all,plotly]",
 ]
-
-[dependency-groups]
 dev = [
     "jupyterlab>=4.4",
     "jupytext>=1.19.6",
+    "mypy>=1.18.2,<2",
+    "pandas-stubs>=2.0",
+    "pytest>=8.3.2,<9",
     "ruff>=0.12",
 ]
+# The generators in gen/
+gen = ["numpy>=1.26", "pandas>=2.0"]
 docs = [
     "sphinx>=9.1.0",
     "nominal-sphinx-theme",
@@ -31,9 +60,10 @@ docs = [
 ]
 
 [tool.uv]
-# A collection of notebooks, not an installable package.
-package = false
-default-groups = ["dev", "docs"]
+# Wait a week before resolving a newly published version of a package, so a malicious release is found
+# before it is installed.
+exclude-newer = "7 days"
+default-groups = ["dev", "docs", "notebooks"]
 # The notebooks use instro's virtual instruments and Nominal publisher, which need none of
 # instro's VISA backends (pyvisa-py) or command line (typer, textual). The thermocouple tables stay:
 # `instro.drivers` imports every category, including DAQ, which imports them.
@@ -59,4 +89,27 @@ instro = { git = "https://github.com/nominal-io/instro", branch = "preview/noteb
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP"]
+select = ["E", "F", "I", "B", "UP", "D"]
+ignore = ["D100", "D104", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+# Docstring rules apply to the nbdemo package. The docs extension and the tests keep their own style.
+"docs/**" = ["D"]
+"tests/**" = ["D", "B018"]  # tests touch lazy properties to trigger them
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+strict = true
+packages = ["nbdemo"]
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["wfdb.*", "sigmf.*", "plotly.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["network: downloads real files; run with `-m network`"]
+addopts = "-m 'not network'"

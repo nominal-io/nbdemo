@@ -26,6 +26,10 @@ The notebooks need a `default`
 notebooks/          site root: index.md, running.md and one .md per demo
 docs/conf.py        Sphinx config
 docs/_ext/          the notebook-gallery directive behind the home page cards
+notebooks/reference/ the Reference tab: how the site is built, and the nbdemo.data docs
+src/nbdemo/data/    the sample data module, `from nbdemo.data.rf import ...`
+gen/                scripts that generate datasets, for traceability
+tests/              tests of nbdemo.data
 .jupyter/           makes JupyterLab open .md files as notebooks
 ```
 
@@ -44,7 +48,7 @@ docs/_ext/          the notebook-gallery directive behind the home page cards
 
    The optional front-matter `icon` key sets the card's [octicon](https://primer.style/octicons/).
    To convert an `.ipynb`: `uv run jupytext --to md:myst <notebook>.ipynb`.
-3. Add its dependencies with `uv add <package>`.
+3. Add its dependencies with `uv add --group notebooks <package>`.
 4. Check and build:
 
    ```shell
@@ -52,6 +56,27 @@ docs/_ext/          the notebook-gallery directive behind the home page cards
    just build-docs   # run changed notebooks and build; warnings fail the build
    just serve-docs   # preview at http://127.0.0.1:8000
    ```
+
+## Sample data
+
+`nbdemo.data` holds sample datasets, grouped by domain (`aero`, `med`, `rf`). Each dataset is a file
+path and, where it makes sense, its format's own Python object and a pandas DataFrame:
+
+```python
+from nbdemo.data.med import ecg_mitbih_119
+
+ecg_mitbih_119.path  # a Path, to pass to your own loader
+ecg_mitbih_119.native  # a wfdb.Record
+ecg_mitbih_119.df  # a pandas.DataFrame
+```
+
+It has no dependencies of its own; install the extras for the formats you read, such as `nbdemo[med]`.
+The Reference tab of the site documents it.
+
+```shell
+just test         # its tests
+just gen-flight   # regenerate the simulated flight telemetry
+```
 
 ## Running on build
 
