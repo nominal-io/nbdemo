@@ -1,4 +1,4 @@
-# Notebook Demos
+# Gallery
 
 {.lead}
 Demo notebooks for the [Nominal](https://nominal.io) platform, shown as they were last run.
@@ -10,7 +10,7 @@ Each one uses the [Nominal Python Client](https://nominal-io.github.io/nominal-c
 ```
 
 ```{toctree}
-:caption: Gallery
+:caption: Demos
 :hidden:
 :glob:
 
