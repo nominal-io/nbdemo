@@ -179,6 +179,18 @@ for channel in telemetry_dataset.get_channels():
 run
 ```
 
+## Example Prompt
+
++++
+
+```text
+make a this notebook display 
+ * the flight on a map
+ * a subset of the the telemetry on a plot 
+ * iq data on a separate chart. 
+make iq data full width on the bottom.
+```
+
 ```{code-cell} ipython3
 
 ```
