@@ -6,7 +6,7 @@ import nbdemo.data as nd
 def test_flight_df():
     pytest.importorskip("pandas")
     df = nd.aero.flight_dc.df
-    assert df.shape == (600, 15)
+    assert df.shape == (1200, 15)
     assert df.index.name == "time" and str(df.index.dtype).startswith("datetime64")
     assert df.index[0].isoformat() == "2026-01-01T12:00:00+00:00"
 

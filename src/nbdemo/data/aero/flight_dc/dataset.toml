@@ -1,4 +1,4 @@
-description = "A 60 s simulated flight over Washington, DC, at 10 Hz: position, attitude, speeds and engine data"
+description = "A 120 s simulated flight near Washington, DC, at 10 Hz: takeoff, climb and three turns, with position, attitude, speeds and engine data"
 license = "Apache-2.0"
 source = "Simulated by gen/aero_flight_dc.py"
 version = 1
@@ -20,6 +20,6 @@ command = "just gen-flight"
 [[files]]
 name = "telemetry.csv"
 primary = true
-sha256 = "71ad888158a5c636d70b5b212fec1a841dee860252ee53aacd5d28e084dbe226"
-size = 91827
+sha256 = "f5b73b1dd58e53aa531e8b40f2d22cb206858b2c2608b2dabac2c8844ea6af56"
+size = 179499
 

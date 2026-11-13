@@ -14,7 +14,7 @@ kernelspec:
 {.lead}
 Telemetry and radio data from one flight
 
-Upload a one-minute flight over Washington, DC, by a plane that carries a software-defined
+Upload a two-minute flight near Washington, DC, by a plane that carries a software-defined
 radio (SDR). The plane is one Nominal {py:class}`asset <nominal.core.Asset>` with two
 {py:class}`datasets <nominal.core.Dataset>`: `telemetry`, the flight data, and `sdr`, the radio's IQ samples. Both come from [`nbdemo.data`](reference/data.md): `aero.flight_dc`
 is simulated telemetry, and `rf.sigmf_synthetic` is a [SigMF](https://sigmf.org) recording,
@@ -69,11 +69,11 @@ for old_asset in client.search_assets(properties={"example": "flight_sdr"}):
 
 ## Load the flight
 
-`flight_dc.df` has 60 seconds of telemetry at 10 Hz. Its timestamps are fixed, so shift them to end
+`flight_dc.df` has 120 seconds of telemetry at 10 Hz: a takeoff, a climb and three turns. Its timestamps are fixed, so shift them to end
 now.
 
 ```{code-cell} ipython3
-DURATION = 60  # seconds
+DURATION = 120  # seconds
 RATE_HZ = 10  # telemetry samples per second
 
 flight_start = pd.Timestamp.now(tz="UTC").floor("s") - pd.Timedelta(seconds=DURATION)
@@ -88,8 +88,8 @@ telemetry.round(2).iloc[::100]
 ## Build the SDR data
 
 The recording is 1,000,000 complex samples at 480 kS/s. `RATE_FACTOR` scales the sample rate the
-data is stamped with. At 1.0 the SDR runs at the recorded 480 kS/s, and the flight takes 28.8
-million samples. At 0.1, the default, it runs at 48 kS/s and takes 2.9 million. The recording
+data is stamped with. At 1.0 the SDR runs at the recorded 480 kS/s, and the flight takes 57.6
+million samples. At 0.1, the default, it runs at 48 kS/s and takes 5.8 million. The recording
 repeats from the start as many times as it takes to cover the flight.
 
 ```{code-cell} ipython3
@@ -184,7 +184,7 @@ run = plane.create_run(
     f"Flight over Washington, DC {flight_start:%Y-%m-%d %H:%M}",
     start=flight_start,
     end=flight_start + pd.Timedelta(seconds=DURATION),
-    description="A one-minute flight along the National Mall",
+    description="A two-minute flight with a takeoff, a climb and three turns",
 )
 plane
 ```
