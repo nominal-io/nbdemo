@@ -66,14 +66,3 @@ nd.catalog("rf")
 {py:class}`~nbdemo.data.FormUnavailable`, which a dataset raises for a form it does not have.
 The [catalog](data-catalog.md) lists every dataset, and [Adding a dataset](data-adding.md)
 explains how to contribute one. The [API](data-api.md) is the full reference.
-
-```{toctree}
-:hidden:
-
-Install <data-install>
-Using the paths <data-paths>
-Using the loaded data <data-loaded>
-Catalog <data-catalog>
-Adding a dataset <data-adding>
-nbdemo.data API <data-api>
-```
