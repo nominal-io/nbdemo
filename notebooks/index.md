@@ -25,10 +25,4 @@ Demos <self>
 Reference <reference/index>
 reference/site
 Sample data <reference/data>
-Install <reference/data-install>
-Using the paths <reference/data-paths>
-Using the loaded data <reference/data-loaded>
-Catalog <reference/data-catalog>
-Adding a dataset <reference/data-adding>
-nbdemo.data API <reference/data-api>
 ```

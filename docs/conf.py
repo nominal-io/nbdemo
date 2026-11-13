@@ -90,7 +90,7 @@ html_show_sourcelink = False
 # The repository is private, so the public site doesn't link to it.
 html_sidebars = {"**": ["sidebars/localtoc.html"]}
 html_theme_options = theme_options(
-    toctree_maxdepth=1,
+    toctree_maxdepth=2,
     nav_links=[
         {"title": "Demos", "url": "index"},
         {"title": "Reference", "url": "reference/index"},
