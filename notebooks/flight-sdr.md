@@ -82,7 +82,7 @@ telemetry = flight_dc.df.copy()
 telemetry.index = (flight_start + (telemetry.index - telemetry.index[0])).as_unit(
     "ns"
 )
-telemetry.round(2).iloc[::100]
+telemetry.round(2).head(5)
 ```
 
 ## Build the SDR data
