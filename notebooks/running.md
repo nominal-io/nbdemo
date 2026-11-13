@@ -17,6 +17,17 @@ The notebooks need a `default` [profile](https://nominal-io.github.io/nominal-cl
 for the [Nominal Python Client](https://nominal-io.github.io/nominal-client/).
 They create resources in that profile's workspace.
 
+## Without uv and just
+
+To open a notebook in your own environment, install JupyterLab and
+[Jupytext](https://jupytext.readthedocs.io), plus the packages the notebook imports:
+
+```shell
+pip install jupyterlab jupytext
+```
+
+Then open the notebook in JupyterLab with **Open With → Jupytext Notebook**.
+
 ## With an agent
 
 Give this prompt to Claude Code, or another coding agent that can run commands, to set up a working
@@ -42,14 +53,3 @@ Set up a working copy of the nbdemo notebooks on my machine.
    JupyterLab with `just notebook` in the background, and give me its address.
 7. Summarize what you set up, and what I need to do next.
 ```
-
-## Without uv and just
-
-To open a notebook in your own environment, install JupyterLab and
-[Jupytext](https://jupytext.readthedocs.io), plus the packages the notebook imports:
-
-```shell
-pip install jupyterlab jupytext
-```
-
-Then open the notebook in JupyterLab with **Open With → Jupytext Notebook**.
