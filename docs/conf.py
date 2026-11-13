@@ -100,7 +100,7 @@ html_sidebars = {"**": ["sidebars/localtoc.html"]}
 html_theme_options = theme_options(
     toctree_maxdepth=1,
     nav_links=[
-        {"title": "Demos", "url": "index"},
+        {"title": "Gallery", "url": "index"},
         {"title": "Reference", "url": "reference/index"},
     ],
 )

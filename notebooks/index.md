@@ -10,11 +10,12 @@ Each one uses the [Nominal Python Client](https://nominal-io.github.io/nominal-c
 ```
 
 ```{toctree}
-:caption: Demos
+:caption: Gallery
 :hidden:
 :glob:
 
-Demos <self>
+Gallery <self>
+running
 *
 ```
 
