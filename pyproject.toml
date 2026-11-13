@@ -60,6 +60,9 @@ docs = [
 ]
 
 [tool.uv]
+# Wait a week before resolving a newly published version of a package, so a malicious release is found
+# before it is installed.
+exclude-newer = "7 days"
 default-groups = ["dev", "docs", "notebooks"]
 # The notebooks use instro's virtual instruments and Nominal publisher, which need none of
 # instro's VISA backends (pyvisa-py) or command line (typer, textual). The thermocouple tables stay:

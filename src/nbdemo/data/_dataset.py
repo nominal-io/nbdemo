@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from nbdemo.data import _loaders
-from nbdemo.data._errors import FormUnavailable, ManifestError
-from nbdemo.data._fetch import cache_dir, download, sha256_of
+from nbdemo.data._errors import FormUnavailable, ManifestError, UnsafeUrlError
+from nbdemo.data._fetch import cache_dir, check_url, download, sha256_of
 
 _REQUIRED = ("description", "license", "source", "version", "files")
 _ATTRIBUTION_LICENSES = ("CC-BY", "ODC-By")  # licenses that require crediting the author
@@ -94,6 +94,11 @@ class Dataset:
                 raise ManifestError(f"{where}: each file needs name, sha256 and size ({f.get('name')})")
             if not (self.root / f["name"]).exists() and "url" not in f:
                 raise ManifestError(f"{where}: {f['name']} is not in the dataset folder, so it needs a url")
+            if "url" in f:
+                try:
+                    check_url(f["url"])
+                except UnsafeUrlError as error:
+                    raise ManifestError(f"{where}: {f['name']}: {error}") from error
         forms = self.manifest.get("forms", {})
         for kind in ("native", "dataframe"):
             if kind in forms and forms[kind] not in _loaders.FORMATS:

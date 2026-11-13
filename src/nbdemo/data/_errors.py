@@ -10,6 +10,10 @@ class ChecksumError(SamplesError):
     """A downloaded file does not match the sha256 in its manifest."""
 
 
+class UnsafeUrlError(SamplesError, ValueError):
+    """A download URL is not HTTPS, has credentials in it, or is on a host that isn't allowed."""
+
+
 class FormUnavailable(AttributeError):
     """A dataset has no ``native`` or ``df`` form.
 

@@ -21,6 +21,7 @@ from nbdemo.data._errors import (
     ManifestError,
     MissingExtraError,
     SamplesError,
+    UnsafeUrlError,
 )
 from nbdemo.data._fetch import cache_dir
 
@@ -32,6 +33,7 @@ __all__ = [
     "ManifestError",
     "MissingExtraError",
     "SamplesError",
+    "UnsafeUrlError",
     "aero",
     "cache_dir",
     "catalog",
