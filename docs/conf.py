@@ -69,6 +69,11 @@ napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_use_rtype = False
 
+# The theme replaces the UUIDs in executed outputs with stand-ins, so published pages show no real IDs.
+# Local builds keep the real ones, so you can follow a card's link to the resource; CI, which publishes,
+# scrambles them. Set CI=1 to scramble locally.
+nominal_scramble_output_ids = bool(os.environ.get("CI"))
+
 # -- Intersphinx: references such as {py:class}`~nominal.core.Asset`, and the names in code cells
 # (through the theme's sphinx-codeautolink), link to the client's and instro's docs ----------
 intersphinx_mapping = {
