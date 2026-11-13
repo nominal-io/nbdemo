@@ -60,16 +60,6 @@ guides/adding-datasets
 ```
 
 ```{toctree}
-:caption: Examples
-:hidden:
-
-Overview <examples/index>
-examples/ecg
-examples/sigmf
-examples/flight
-```
-
-```{toctree}
 :caption: Reference
 :hidden:
 

@@ -42,8 +42,6 @@ nb_execution_timeout = 180
 # otherwise win, and it can point at another project's environment.
 os.environ["JUPYTER_PATH"] = str(Path(sys.prefix) / "share" / "jupyter")
 
-# Plotly figures as HTML (plotly.js from its CDN), so they stay interactive in the docs.
-os.environ["PLOTLY_RENDERER"] = "notebook_connected"
 # The notebooks download into a folder of their own, so a build never depends on what is cached.
 os.environ["NOMINAL_SAMPLES_CACHE"] = str(HERE / "_build" / "samples-cache")
 
@@ -77,7 +75,6 @@ html_theme_options = theme_options(
     # header tabs; each tab is a folder, and the sidebar shows only its toctree
     nav_links=[
         {"title": "Guides", "url": "index"},
-        {"title": "Examples", "url": "examples/index"},
         {"title": "Reference", "url": "reference/index"},
     ],
 )
