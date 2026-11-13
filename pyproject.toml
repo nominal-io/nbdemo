@@ -13,6 +13,7 @@ dependencies = []
 pandas = ["pandas>=2.0"]
 wfdb = ["wfdb>=4.1", "pandas>=2.0"]
 sigmf = ["sigmf>=1.2"]
+plotly = ["plotly>=6.0"]
 med = ["nbdemo[pandas,wfdb]"]
 rf = ["nbdemo[sigmf]"]
 aero = ["nbdemo[pandas]"]
@@ -36,7 +37,7 @@ notebooks = [
     "matplotlib>=3.10",
     "scikit-rf>=1.8",
     "instro",
-    "nbdemo[all]",
+    "nbdemo[all,plotly]",
 ]
 dev = [
     "jupyterlab>=4.4",
@@ -102,7 +103,7 @@ packages = ["nbdemo"]
 mypy_path = "src"
 
 [[tool.mypy.overrides]]
-module = ["wfdb.*", "sigmf.*"]
+module = ["wfdb.*", "sigmf.*", "plotly.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

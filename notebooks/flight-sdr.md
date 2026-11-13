@@ -41,9 +41,12 @@ import pandas as pd
 from nominal.core import NominalClient, set_display_options
 from nbdemo.data.aero import flight_dc
 from nbdemo.data.rf import sigmf_synthetic
+from nbdemo.style import set_plotly_style
 
 # A Nominal object at the end of a cell displays as a card.
 set_display_options(time_format="readable")
+# Plotly figures use nbdemo's style, which suits both light and dark pages.
+set_plotly_style()
 
 client = NominalClient.from_profile("default")
 ```
@@ -106,6 +109,42 @@ print(
     f"{count:,} samples at {sdr_rate:,.0f} S/s: "
     f"{count / len(iq):.1f} repeats of the {len(iq):,}-sample recording"
 )
+```
+
+## Preview the data
+
+Before uploading, check where the plane flew and what the radio heard. The map shows the flight's
+ground track, with its start and end marked.
+
+```{code-cell} ipython3
+import plotly.express as px
+
+track = px.line_map(telemetry, lat="latitude", lon="longitude", zoom=12, height=380)
+ends = telemetry.iloc[[0, -1]]
+track.add_scattermap(
+    lat=ends["latitude"],
+    lon=ends["longitude"],
+    mode="markers+text",
+    text=["start", "end"],
+    textposition="top right",
+    marker={"size": 10},
+    showlegend=False,
+)
+track.update_layout(
+    map_style="open-street-map", margin={"l": 0, "r": 0, "t": 0, "b": 0}
+)
+track
+```
+
+The first 400 IQ samples, in milliseconds from the start of the recording:
+
+```{code-cell} ipython3
+n = 400
+iq_preview = pd.DataFrame(
+    {"i": samples[:n].real, "q": samples[:n].imag},
+    index=pd.Index(np.arange(n) / sdr_rate * 1e3, name="time (ms)"),
+)
+px.line(iq_preview)
 ```
 
 ## Create the plane
