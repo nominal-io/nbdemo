@@ -1,0 +1,32 @@
+description = "The first minute of MIT-BIH Arrhythmia Database record 119: two ECG leads at 360 Hz with beat and rhythm annotations"
+license = "ODC-By-1.0"
+source = "https://physionet.org/content/mitdb/1.0.0/"
+attribution = """\
+Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. IEEE Eng in Med and Biol 20(3):45-50 (2001). \
+Goldberger A, et al. PhysioBank, PhysioToolkit, and PhysioNet. Circulation 101(23):e215-e220 (2000)."""
+version = 1
+
+[forms]
+native = "wfdb"
+dataframe = "wfdb"
+
+[generated]
+script = "scripts/download_wfdb.py in panominal"
+command = "wfdb.rdrecord('119', pn_dir='mitdb', sampto=21600), copied without loss"
+
+[[files]]
+name = "119.atr"
+sha256 = "3007429d49af28b41adce2cc1f5a98602f64dd4934886349a6dbc3ef285b1253"
+size = 216
+
+[[files]]
+name = "119.dat"
+sha256 = "824dfe2c685ec880477bff67fdeb280162891e71e3b506bd8e6e484c99a33524"
+size = 64800
+
+[[files]]
+name = "119.hea"
+primary = true
+sha256 = "875402a9a58b93cae6ef2837a397f5a56116bc8192074ff48379f4a4a3b4f6d8"
+size = 167
+
