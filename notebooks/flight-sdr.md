@@ -89,11 +89,11 @@ telemetry.round(2).iloc[::100]
 
 The recording is 1,000,000 complex samples at 480 kS/s. `RATE_FACTOR` scales the sample rate the
 data is stamped with. At 1.0 the SDR runs at the recorded 480 kS/s, and the flight takes 57.6
-million samples. At 0.1, the default, it runs at 48 kS/s and takes 5.8 million. The recording
+million samples. At 0.05, the default, it runs at 24 kS/s and takes 2.9 million. The recording
 repeats from the start as many times as it takes to cover the flight.
 
 ```{code-cell} ipython3
-RATE_FACTOR = 0.1  # 1.0: the recorded sample rate; 0.1: one tenth of it
+RATE_FACTOR = 0.05  # 1.0: the recorded sample rate; 0.05: one twentieth of it
 
 recording = sigmf_synthetic.native  # a sigmf.SigMFFile, downloaded on first use
 recorded_rate = float(recording.get_global_field("core:sample_rate"))
