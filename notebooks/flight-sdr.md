@@ -119,7 +119,8 @@ ground track, with its start and end marked.
 ```{code-cell} ipython3
 import plotly.express as px
 
-track = px.line_map(telemetry, lat="latitude", lon="longitude", height=380)
+# Plotly centers the map on the track; the zoom fits the whole flight.
+track = px.line_map(telemetry, lat="latitude", lon="longitude", zoom=12, height=380)
 ends = telemetry.iloc[[0, -1]]
 track.add_scattermap(
     lat=ends["latitude"],
@@ -131,18 +132,8 @@ track.add_scattermap(
     marker={"size": 10},
     showlegend=False,
 )
-# Open on the whole track, with a margin, on a dark base map.
-pad = 0.15
-lat, lon = telemetry["latitude"], telemetry["longitude"]
 track.update_layout(
-    map_style="carto-darkmatter",
-    map_bounds={
-        "west": lon.min() - pad * (lon.max() - lon.min()),
-        "east": lon.max() + pad * (lon.max() - lon.min()),
-        "south": lat.min() - pad * (lat.max() - lat.min()),
-        "north": lat.max() + pad * (lat.max() - lat.min()),
-    },
-    margin={"l": 0, "r": 0, "t": 0, "b": 0},
+    map_style="carto-darkmatter", margin={"l": 0, "r": 0, "t": 0, "b": 0}
 )
 track
 ```
