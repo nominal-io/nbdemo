@@ -1,5 +1,6 @@
 ---
 icon: pulse
+thumbnail: images/sigmf-stream-thumbnail.png
 jupytext:
   text_representation:
     format_name: myst

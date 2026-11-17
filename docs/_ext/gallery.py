@@ -5,8 +5,14 @@ Adapted from nominal-client's ``example-gallery``. A card links to each:
 - subfolder with an ``index.md``, titled from its first ``#`` heading, unless ``:exclude:`` names it, and
 - notebook: a MyST Markdown file with ``kernelspec`` in its front matter.
 
-A card shows the page's first ``#`` heading as its title. The optional front-matter ``icon`` key
-names an octicon.
+A card shows a thumbnail over the page's first ``#`` heading as its title. The thumbnail is, in
+order of preference:
+
+1. the page's ``thumbnail`` front-matter key, a path relative to the page;
+2. the first image in a notebook cell tagged ``thumbnail``;
+3. the page's last image, so a notebook's last plot.
+
+A page without one gets an empty tile. Adapted from shibuya-page's ``gallery``.
 The sidebar lists the pages through each index's toctree, not here.
 """
 
@@ -16,30 +22,22 @@ from typing import Any, NamedTuple
 import yaml
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.statemachine import StringList
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
-GALLERY = """\
-::::{{grid}} 1 1 2 2
-:gutter: 4
+logger = logging.getLogger(__name__)
+STATIC_PATH = Path(__file__).parent / "static"
+THUMBNAIL_TAG = "tag_thumbnail"
 
-{cards}
-::::
-"""
 
-CARD = """\
-:::{{grid-item-card}} {label}
-:link: {link}
-:link-type: doc
-:::
-"""
+class notebook_gallery(nodes.General, nodes.Element):
+    """Where the cards go; replaced once every page's thumbnail is known."""
 
 
 class Card(NamedTuple):
     title: str
-    icon: str
 
 
 def _heading(markdown: str, fallback: str) -> str:
@@ -58,7 +56,7 @@ def _myst_card(path: Path, *, notebook_only: bool) -> Card | None:
         meta = yaml.safe_load(front) or {}
     if notebook_only and "kernelspec" not in meta:
         return None
-    return Card(_heading(text, path.stem), meta.get("icon", ""))
+    return Card(_heading(text, path.stem))
 
 
 def _cards(folder: Path, exclude: set[str]) -> list[tuple[str, Path, Card]]:
@@ -68,7 +66,7 @@ def _cards(folder: Path, exclude: set[str]) -> list[tuple[str, Path, Card]]:
         card = _myst_card(sub / "index.md", notebook_only=False)
         assert card is not None
         found.append((f"{sub.name}/index", sub / "index.md", card))
-    for path in sorted(folder.glob("*.md")):
+    for path in sorted(p for p in folder.glob("*.md") if p.stem != "index"):
         card = _myst_card(path, notebook_only=True)
         if card is not None:
             found.append((path.stem, path, card))
@@ -80,42 +78,111 @@ class NotebookGallery(SphinxDirective):
 
     def run(self) -> list[nodes.Node]:
         folder = Path(self.env.doc2path(self.env.docname)).parent
-        cards = []
+        prefix = self.env.docname.rpartition("/")[0]
+        entries = []
         exclude = set(self.options.get("exclude", "").split())
         for link, path, card in _cards(folder, exclude):
             self.env.note_dependency(path)
-            label = f"{{octicon}}`{card.icon}` {card.title}" if card.icon else card.title
-            cards.append(CARD.format(label=label, link=link))
-        self.env.notebook_galleries = getattr(self.env, "notebook_galleries", set()) | {self.env.docname}
+            entries.append((card.title, f"{prefix}/{link}" if prefix else link))
+        self.env.notebook_galleries[self.env.docname] = {ref for _, ref in entries}
+        return [notebook_gallery(entries=entries)]
 
-        markup = GALLERY.format(cards="\n".join(cards))
-        container = nodes.Element()
-        source = self.get_source_info()[0]
-        self.state.nested_parse(StringList(markup.splitlines(), source), self.content_offset, container)
-        return container.children
+
+def _image_key(env: BuildEnvironment, node: nodes.image) -> str | None:
+    candidate = node.get("candidates", {}).get("*")
+    return candidate if candidate in env.images else None
+
+
+def _find_thumbnail(app: Sphinx, doctree: nodes.document) -> None:
+    env = app.env
+    docname = env.docname
+    thumbnail = env.metadata.get(docname, {}).get("thumbnail")
+    if thumbnail:
+        relpath, abspath = env.relfn2path(str(thumbnail), docname)
+        if Path(abspath).is_file():
+            env.images.add_file(docname, relpath)  # so the builder copies it
+            env.note_dependency(abspath, docname=docname)
+            env.notebook_thumbs[docname] = relpath
+            return
+        logger.warning("thumbnail %r not found", thumbnail, location=docname)
+
+    images = [key for node in doctree.findall(nodes.image) if (key := _image_key(env, node))]
+    tagged = [
+        key
+        for cell in doctree.findall(nodes.container)
+        if THUMBNAIL_TAG in cell.get("classes", ())
+        for node in cell.findall(nodes.image)
+        if (key := _image_key(env, node))
+    ]
+    if tagged or images:
+        env.notebook_thumbs[docname] = (tagged or images[::-1])[0]
+
+
+def _draw(app: Sphinx, doctree: nodes.document, docname: str) -> None:
+    env = app.env
+    for node in list(doctree.findall(notebook_gallery)):
+        if app.builder.format != "html":
+            node.parent.remove(node)
+            continue
+        grid = nodes.container(classes=["sp-gallery"])
+        for title, ref in node["entries"]:
+            link = nodes.reference("", "", internal=True, refuri=app.builder.get_relative_uri(docname, ref))
+            thumb = env.notebook_thumbs.get(ref)
+            if thumb:
+                frame = nodes.inline("", "", classes=["sp-gallery-image"])
+                frame += nodes.image(uri=thumb, candidates={"*": thumb}, alt="")
+            else:
+                frame = nodes.inline("", "", classes=["sp-gallery-image", "sp-gallery-empty"])
+            link += frame
+            link += nodes.inline(title, title, classes=["sp-gallery-title"])
+            grid += nodes.paragraph("", "", link, classes=["sp-gallery-card"])
+        node.replace_self(grid)
+
+
+def _init_env(app: Sphinx) -> None:
+    for attr in ("notebook_galleries", "notebook_thumbs"):
+        if not hasattr(app.env, attr):
+            setattr(app.env, attr, {})
 
 
 def _purge(app: Sphinx, env: BuildEnvironment, docname: str) -> None:
-    getattr(env, "notebook_galleries", set()).discard(docname)
+    env.notebook_galleries.pop(docname, None)
+    env.notebook_thumbs.pop(docname, None)
 
 
 def _merge(app: Sphinx, env: BuildEnvironment, docnames: set[str], other: BuildEnvironment) -> None:
-    env.notebook_galleries = getattr(env, "notebook_galleries", set()) | getattr(other, "notebook_galleries", set())
+    for docname in docnames:
+        if docname in other.notebook_galleries:
+            env.notebook_galleries[docname] = other.notebook_galleries[docname]
+        if docname in other.notebook_thumbs:
+            env.notebook_thumbs[docname] = other.notebook_thumbs[docname]
 
 
 def _outdated(app: Sphinx, env: BuildEnvironment, added: set[str], changed: set[str], removed: set[str]) -> list[str]:
-    """Rebuild a gallery when a page is added to or removed from its folder or a subfolder."""
+    """Rebuild a gallery when a page it links to changes (its thumbnail may), or one is added or removed."""
+    touched = added | changed | removed
     folders = {docname.rpartition("/")[0] for docname in added | removed}
     return [
         doc
-        for doc in getattr(env, "notebook_galleries", set())
-        if any(folder == doc.rpartition("/")[0] or folder.startswith(doc.rpartition("/")[0]) for folder in folders)
+        for doc, refs in env.notebook_galleries.items()
+        if refs & touched or any(f == doc.rpartition("/")[0] for f in folders)
     ]
 
 
+def _add_static(app: Sphinx, config: Any) -> None:
+    config.html_static_path.append(str(STATIC_PATH))
+
+
 def setup(app: Sphinx) -> dict[str, Any]:
+    app.add_node(notebook_gallery)
     app.add_directive("notebook-gallery", NotebookGallery)
+    app.connect("builder-inited", _init_env)
+    app.connect("config-inited", _add_static)
+    # after Sphinx's image collector (500) has registered the page's images
+    app.connect("doctree-read", _find_thumbnail, priority=600)
+    app.connect("doctree-resolved", _draw)
     app.connect("env-purge-doc", _purge)
     app.connect("env-merge-info", _merge)
     app.connect("env-get-outdated", _outdated)
-    return {"parallel_read_safe": True, "parallel_write_safe": True}
+    app.add_css_file("notebook-gallery.css")
+    return {"parallel_read_safe": True, "parallel_write_safe": True, "env_version": 2}
