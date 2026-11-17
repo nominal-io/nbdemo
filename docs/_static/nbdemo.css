@@ -19,3 +19,25 @@
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E")
     center / contain no-repeat;
 }
+
+/* Click an image on a page to fill the window with it; click again (or press Esc) to go back. */
+.yue img:not(.sp-gallery img) {
+  cursor: zoom-in;
+}
+.nbdemo-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.85);
+  cursor: zoom-out;
+}
+.nbdemo-zoom img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-out;
+}

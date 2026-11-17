@@ -1,0 +1,72 @@
+/* notebook-gallery: a grid of cards, each a thumbnail over the page's title. The colors come from
+   shibuya-page's look, with fallbacks for other themes. */
+.sp-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  gap: 1rem;
+  margin: 0.75rem 0 1.5rem;
+}
+
+.sp-gallery > p.caption {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: 700;
+}
+
+.sp-gallery > p.sp-gallery-card {
+  margin: 0;
+}
+
+.sp-gallery-card > a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  color: var(--sp-text, inherit);
+  text-decoration: none;
+}
+
+.sp-gallery-card > a:hover {
+  color: var(--sp-link-hover, inherit);
+  text-decoration: none;
+}
+
+.sp-gallery-image {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  /* transparent, so the plot sits on the page's own background in light and dark mode */
+  background: transparent;
+}
+
+.sp-gallery-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  margin: 0;
+  transition: transform 0.2s ease;
+}
+
+.sp-gallery-card > a:hover .sp-gallery-image img {
+  transform: scale(1.03);
+}
+
+/* A page without an image: a faint tile, or the image a project sets, such as its logo:
+   :root { --sp-gallery-placeholder: url("logo.svg"); } */
+.sp-gallery-empty {
+  background: var(--sp-gallery-placeholder, none) center / 40% no-repeat,
+    color-mix(in srgb, var(--sp-rule, #e1e4e5) 50%, transparent);
+  opacity: 0.6;
+}
+
+.sp-gallery-title {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95em;
+  line-height: 1.35;
+}

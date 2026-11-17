@@ -237,8 +237,13 @@ run
 make a this notebook display 
  * the flight on a map
  * a subset of the the telemetry on a plot 
- * iq data on a separate chart. 
-make iq data full width on the bottom.
+ * iq data on a separate chart: plot i and q vs time, full width on the bottom.
+```
+
+```{image} images/flight-sdr-workbook.png
+:alt: A Nominal workbook with the flight path on a map, altitude, airspeed and groundspeed on a plot, and I and Q against time full width along the bottom
+:width: 100%
+:target: ../_images/flight-sdr-workbook.png
 ```
 
 ```{code-cell} ipython3

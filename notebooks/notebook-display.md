@@ -1,5 +1,6 @@
 ---
 icon: browser
+thumbnail: images/notebook-display-thumbnail.png
 jupytext:
   text_representation:
     format_name: myst
