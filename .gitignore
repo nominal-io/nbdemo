@@ -9,3 +9,7 @@ _build/
 
 # Files the notebooks write while they run
 notebooks/**/rf_radio_data/
+
+# nominal-samples development
+.mypy_cache/
+.pytest_cache/

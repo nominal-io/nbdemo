@@ -16,7 +16,7 @@ Check each instrument's data as you connect a bench
 
 % TODO: introduction. Motivation: set up monitoring of a bench.
 
-**Requirements:** a `default` [profile](https://nominal-io.github.io/nominal-client/guides/api-keys-setup/)
+**Requirements:** a `default` [profile](inv:nominal:std:doc#guides/api-keys-setup)
 for the Nominal Python Client, and the packages the notebook imports, including
 [instro](https://instro.nominal.io). [Running the notebooks](running.md) explains how to set them
 up.
@@ -92,8 +92,8 @@ eload_hardware = VirtualELoad(source_voltage=5.0, source_resistance=0.05)
 
 ## Connect the bench to Nominal
 
-In Nominal, an asset represents a physical system: here, bench 7. Every instrument streams to the
-asset's `bench` dataset. A run marks a period of time on the asset: here, the bring-up session. To
+In Nominal, an {py:class}`asset <nominal.core.Asset>` represents a physical system: here, bench 7. Every instrument streams to the
+asset's `bench` {py:class}`dataset <nominal.core.Dataset>`. A {py:class}`run <nominal.core.Run>` marks a period of time on the asset: here, the bring-up session. To
 watch the data arrive during bring-up, open the run in Nominal with **Open in Nominal** on its card, shown below.
 
 ```{code-cell} ipython3
@@ -150,7 +150,7 @@ An instro instrument wraps a driver. `open()` connects to the
 instrument, and `start()` starts a background daemon which reads the
 instrument at a fixed interval. It sends each reading to the
 instrument's list of publishers; e.g., a `NominalCorePublisher`
-streams the readings to a Nominal dataset. instro names each channel
+streams the readings to a Nominal {py:class}`dataset <nominal.core.Dataset>`. instro names each channel
 `<instrument name>.<channel>`. The instrument's card in the notebook
 shows its latest readings.
 

@@ -15,12 +15,13 @@ kernelspec:
 Component data and a field test
 
 Keep two W-band (75–110 GHz) point-to-point radios' component data and field-test telemetry in
-Nominal, then use both to find out why one radio dropped packets. Each radio is a Nominal asset,
-with its parts' Touchstone files as attachments and its field test as a run. All data is
+Nominal, then use both to find out why one radio dropped packets. Each radio is a Nominal {py:class}`asset <nominal.core.Asset>`,
+with its parts' Touchstone files as {py:class}`attachments <nominal.core.Attachment>` and its field test as a
+{py:class}`run <nominal.core.Run>`. All data is
 simulated, with [scikit-rf](https://scikit-rf.org) standing in for vector network analyzer
 measurements.
 
-**Requirements:** a `default` [profile](https://nominal-io.github.io/nominal-client/guides/api-keys-setup/)
+**Requirements:** a `default` [profile](inv:nominal:std:doc#guides/api-keys-setup)
 for the Nominal Python Client, and the packages the notebook imports, including scikit-rf.
 [Running the notebooks](running.md) explains how to set them up.
 
@@ -273,7 +274,7 @@ def key_figures(parts: dict[str, rf.Network]) -> dict[str, float]:
 pd.DataFrame({radio: key_figures(parts) for radio, parts in RADIOS.items()})
 ```
 
-`NominalClient.get_or_create_asset_by_properties` finds each radio by its
+{py:meth}`~nominal.core.NominalClient.get_or_create_asset_by_properties` finds each radio by its
 properties, or registers it the first time. The `example` property keeps these assets apart from
 real radios with the same `radio_id`.
 
@@ -441,7 +442,7 @@ fig.tight_layout()
 ### Upload the field test
 
 Both radios store their data under the same data scope names, `power` and `comms`, so one workbook
-template or checklist works for either radio. `Asset.get_or_create_dataset`
+template or checklist works for either radio. {py:meth}`~nominal.core.Asset.get_or_create_dataset`
 creates each radio's dataset under its data scope, and `upload_dataframe_to_dataset` uploads the
 test, waiting until Nominal has ingested it.
 
@@ -507,7 +508,7 @@ for radio, tables in tests.items():
     )
 ```
 
-RadioTwo's fan failure and the modem stepping down become events, so they show on the timeline
+RadioTwo's fan failure and the modem stepping down become {py:class}`events <nominal.core.Event>`, so they show on the timeline
 in Nominal:
 
 ```{code-cell} ipython3

@@ -2,7 +2,7 @@
 
 Adapted from nominal-client's ``example-gallery``. A card links to each:
 
-- subfolder with an ``index.md``, titled from its first ``#`` heading, and
+- subfolder with an ``index.md``, titled from its first ``#`` heading, unless ``:exclude:`` names it, and
 - notebook: a MyST Markdown file with ``kernelspec`` in its front matter.
 
 A card shows the page's first ``#`` heading as its title. The optional front-matter ``icon`` key
@@ -15,6 +15,7 @@ from typing import Any, NamedTuple
 
 import yaml
 from docutils import nodes
+from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 from sphinx.application import Sphinx
 from sphinx.environment import BuildEnvironment
@@ -60,10 +61,10 @@ def _myst_card(path: Path, *, notebook_only: bool) -> Card | None:
     return Card(_heading(text, path.stem), meta.get("icon", ""))
 
 
-def _cards(folder: Path) -> list[tuple[str, Path, Card]]:
+def _cards(folder: Path, exclude: set[str]) -> list[tuple[str, Path, Card]]:
     """(docname relative to the folder, source path, card) for each subfolder and notebook."""
     found = []
-    for sub in sorted(p for p in folder.iterdir() if (p / "index.md").is_file()):
+    for sub in sorted(p for p in folder.iterdir() if (p / "index.md").is_file() and p.name not in exclude):
         card = _myst_card(sub / "index.md", notebook_only=False)
         assert card is not None
         found.append((f"{sub.name}/index", sub / "index.md", card))
@@ -75,10 +76,13 @@ def _cards(folder: Path) -> list[tuple[str, Path, Card]]:
 
 
 class NotebookGallery(SphinxDirective):
+    option_spec = {"exclude": directives.unchanged}
+
     def run(self) -> list[nodes.Node]:
         folder = Path(self.env.doc2path(self.env.docname)).parent
         cards = []
-        for link, path, card in _cards(folder):
+        exclude = set(self.options.get("exclude", "").split())
+        for link, path, card in _cards(folder, exclude):
             self.env.note_dependency(path)
             label = f"{{octicon}}`{card.icon}` {card.title}" if card.icon else card.title
             cards.append(CARD.format(label=label, link=link))

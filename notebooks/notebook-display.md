@@ -14,7 +14,7 @@ kernelspec:
 {.lead}
 Cards for Nominal resources
 
-In Jupyter, VS Code and Colab, the Nominal Python Client shows assets, runs, datasets, channels
+In Jupyter, VS Code and Colab, the Nominal Python Client shows {py:class}`assets <nominal.core.Asset>`, {py:class}`runs <nominal.core.Run>`, {py:class}`datasets <nominal.core.Dataset>`, {py:class}`channels <nominal.core.Channel>`
 and other resources as cards. A card shows the resource's fields and related resources, links
 them to the Nominal app, and draws a diagram of how they connect. This notebook shows each card
 for a simulated helicopter rotor test rig, then how to configure the cards.
@@ -119,8 +119,8 @@ for scope, table in tables.items():
         channel.update(unit=units[channel.name])
 ```
 
-Each phase of the test becomes a run on the rig, and the gearbox overheating late in the hold
-becomes an event:
+Each phase of the test becomes a {py:class}`run <nominal.core.Run>` on the rig, and the gearbox overheating late in the hold
+becomes an {py:class}`event <nominal.core.Event>`:
 
 ```{code-cell} ipython3
 :tags: [hide-input]

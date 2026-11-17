@@ -1,0 +1,25 @@
+description = "A 120 s simulated flight near Washington, DC, at 10 Hz: takeoff, climb and three turns, with position, attitude, speeds and engine data"
+license = "Apache-2.0"
+source = "Simulated by gen/aero_flight_dc.py"
+version = 1
+
+[forms]
+dataframe = "csv"
+
+[unavailable]
+native = "a CSV file has no object of its own; use .df"
+
+[tabular]
+index = "time"
+
+[generated]
+script = "gen/aero_flight_dc.py"
+seed = 42
+command = "just gen-flight"
+
+[[files]]
+name = "telemetry.csv"
+primary = true
+sha256 = "f5b73b1dd58e53aa531e8b40f2d22cb206858b2c2608b2dabac2c8844ea6af56"
+size = 179499
+

@@ -1,0 +1,23 @@
+description = "IQEngine's synthetic SigMF recording: about 2 s of complex samples at 480 kS/s, centred on 8.486 GHz"
+license = "CC-BY-4.0"
+source = "https://iqengine.org/"
+attribution = "Marc, 'synthetic', via IQEngine. Licensed under CC BY 4.0."
+version = 1
+
+[forms]
+native = "sigmf"
+
+[unavailable]
+dataframe = "the samples are binary IQ data, not a table; use .native, and its read_samples()"
+
+[[files]]
+name = "synthetic.sigmf-meta"
+primary = true
+sha256 = "4b04de948ea6a91605cde3589cbaa803a9055dcd10027d6a14a58790099ec833"
+size = 737
+
+[[files]]
+name = "synthetic.sigmf-data"
+sha256 = "9c0dd1c2fa6fb26f3884f462f43d2af4accbdd9541bbc00453d90dda1ca2dd12"
+size = 8000000
+url = "https://iqengine.org/api/datasources/local/local/synthetic.sigmf-data"

@@ -1,5 +1,6 @@
 """Sphinx config for the Nominal demo notebooks site."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -15,6 +16,8 @@ copyright = "Nominal, Inc."
 
 extensions = [
     "myst_nb",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
     "sphinx_design",
@@ -44,11 +47,43 @@ nb_execution_timeout = 600  # per cell; uploads wait for Nominal to ingest the d
 try:
     NominalConfig.from_yaml().get_profile("default")
 except (FileNotFoundError, NominalConfigError):
-    nb_execution_excludepatterns = ["**/*.md"]
+    # The pages under reference/ need no profile, so they always run.
+    nb_execution_excludepatterns = [
+        str(path.relative_to(HERE.parent / "notebooks"))
+        for path in (HERE.parent / "notebooks").rglob("*.md")
+        if "reference" not in path.relative_to(HERE.parent / "notebooks").parts
+    ]
+
+# Run the notebooks in this environment's kernel. A `python3` kernel in the user's own Jupyter folder would
+# otherwise win, and it can point at another project's environment.
+os.environ["JUPYTER_PATH"] = str(Path(sys.prefix) / "share" / "jupyter")
+# Plotly figures as HTML (plotly.js from its CDN), so they render on the page and stay interactive.
+# The kernels that run the notebooks inherit this; interactive Jupyter is unaffected.
+os.environ["PLOTLY_RENDERER"] = "notebook_connected"
+# The reference pages download into a folder of their own, so a build never depends on what is cached.
+os.environ["NBDEMO_CACHE"] = str(HERE.parent / "_build" / "samples-cache")
+
+# -- Autodoc: the nbdemo.data reference pages, written from its docstrings ----------------
+autodoc_member_order = "bysource"
+autodoc_preserve_defaults = True
+python_use_unqualified_type_names = True
+add_module_names = False
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_use_rtype = False
+
+# The theme replaces the UUIDs in executed outputs with stand-ins, so published pages show no real IDs.
+# Local builds keep the real ones, so you can follow a card's link to the resource; CI, which publishes,
+# scrambles them. Set CI=1 to scramble locally.
+nominal_scramble_output_ids = bool(os.environ.get("CI"))
 
 # -- Intersphinx: references such as {py:class}`~nominal.core.Asset`, and the names in code cells
 # (through the theme's sphinx-codeautolink), link to the client's and instro's docs ----------
-intersphinx_mapping = intersphinx("nominal", "instro")
+intersphinx_mapping = {
+    **intersphinx("nominal", "instro"),
+    "python": ("https://docs.python.org/3", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
+}
 
 # -- HTML: nominal-sphinx-theme (Shibuya, styled like the other Nominal docs) ----
 html_theme = "shibuya"
@@ -64,5 +99,8 @@ html_show_sourcelink = False
 html_sidebars = {"**": ["sidebars/localtoc.html"]}
 html_theme_options = theme_options(
     toctree_maxdepth=1,
-    nav_links=[{"title": "Demos", "url": "index"}],
+    nav_links=[
+        {"title": "Demos", "url": "index"},
+        {"title": "Reference", "url": "reference/index"},
+    ],
 )
