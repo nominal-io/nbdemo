@@ -15,7 +15,7 @@ kernelspec:
 Component data and a field test
 
 Keep two W-band (75–110 GHz) point-to-point radios' component data and field-test telemetry in
-Nominal, then use both to find out why one radio dropped packets. Each radio is a Nominal {py:class}`asset <nominal.core.Asset>`,
+Nominal, along with the telemetry of the drones that carry them, then analyze it all in the Nominal platform. Each radio is a Nominal {py:class}`asset <nominal.core.Asset>`,
 with its parts' Touchstone files as {py:class}`attachments <nominal.core.Attachment>` and its field test as a
 {py:class}`run <nominal.core.Run>`. All data is
 simulated, with [scikit-rf](https://scikit-rf.org) standing in for vector network analyzer
@@ -37,23 +37,25 @@ created on them, so they hold one set of data: this execution's.
 ```{code-cell} ipython3
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
 import skrf as rf
 from nominal.core import EventType, NominalClient, set_display_options
-from nominal.thirdparty.pandas import (
-    datasource_to_dataframe,
-    upload_dataframe_to_dataset,
-)
+from nbdemo.style import set_plotly_style
+from nominal.thirdparty.pandas import upload_dataframe_to_dataset
+from plotly.subplots import make_subplots
 
 # A Nominal object at the end of a cell displays as a card. Show its timestamps in a readable
 # format.
 set_display_options(time_format="readable")
-plt.style.use("dark_background")
+# Plotly figures use nbdemo's style, on plotly's dark template.
+set_plotly_style()
+pio.templates.default = "plotly_dark+nbdemo"
 
 client = NominalClient.from_profile("default")
-client
 ```
 
 ```{code-cell} ipython3
@@ -221,33 +223,41 @@ pd.DataFrame(touchstone_files).map(str)
 
 ```{code-cell} ipython3
 # Overlay the two radios' parts: RadioOne solid, RadioTwo dashed.
-fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True)
+panels = ["Filters", "Amplifier", "Antenna", "Coupler"]
+fig = make_subplots(
+    rows=2, cols=2, subplot_titles=panels, shared_xaxes=True, vertical_spacing=0.12
+)
+
+
+def add_s_db(
+    network: rf.Network, m: int, n: int, name: str, row: int, col: int, dash: str
+) -> None:
+    fig.add_scatter(
+        x=network.f / 1e9,
+        y=network.s_db[:, m, n],
+        name=name,
+        line={"dash": dash, "width": 1.5},
+        row=row,
+        col=col,
+    )
+
+
 for radio, parts in RADIOS.items():
-    style = {"linestyle": "-" if radio == "RadioOne" else "--"}
+    dash = "solid" if radio == "RadioOne" else "dash"
     for part in ["tx_filter", "rx_filter"]:
-        parts[part].plot_s_db(
-            m=1, n=0, ax=axes[0, 0], label=f"{radio} {part} S21", **style
-        )
-    parts["amplifier"].plot_s_db(
-        m=1, n=0, ax=axes[0, 1], label=f"{radio} S21", **style
-    )
-    parts["amplifier"].plot_s_db(
-        m=0, n=0, ax=axes[0, 1], label=f"{radio} S11", **style
-    )
-    parts["antenna"].plot_s_db(
-        m=0, n=0, ax=axes[1, 0], label=f"{radio} S11", **style
-    )
+        add_s_db(parts[part], 1, 0, f"{radio} {part} S21", 1, 1, dash)
+    add_s_db(parts["amplifier"], 1, 0, f"{radio} amplifier S21", 1, 2, dash)
+    add_s_db(parts["amplifier"], 0, 0, f"{radio} amplifier S11", 1, 2, dash)
+    add_s_db(parts["antenna"], 0, 0, f"{radio} antenna S11", 2, 1, dash)
     for m, port in [(1, "through"), (2, "coupled"), (3, "isolated")]:
-        parts["coupler"].plot_s_db(
-            m=m, n=0, ax=axes[1, 1], label=f"{radio} {port}", **style
-        )
-axes[0, 0].set_ylim(-60, 5)
-for ax, title in zip(
-    axes.flat, ["Filters", "Amplifier", "Antenna", "Coupler"], strict=True
-):
-    ax.set_title(title)
-    ax.legend(fontsize=7)
-fig.tight_layout()
+        add_s_db(parts["coupler"], m, 0, f"{radio} coupler {port}", 2, 2, dash)
+fig.update_yaxes(range=[-60, 5], row=1, col=1)
+fig.update_yaxes(title_text="dB", col=1)
+fig.update_xaxes(title_text="frequency (GHz)", row=2)
+fig.update_layout(
+    height=640, hovermode="closest", legend={"y": -0.2, "yanchor": "top"}
+)
+fig
 ```
 
 ### Register the radios as assets
@@ -316,8 +326,6 @@ for radio, parts in RADIOS.items():
     ]
     asset.add_attachments(attachments)
     assets[radio] = asset
-
-assets["RadioTwo"]
 ```
 
 ## Field test
@@ -334,6 +342,11 @@ Both radios carry traffic over the same link for 10 minutes, recorded at 10 Hz. 
 | `comms` | `rx_packets_mpps` | million packets/s | packets received intact |
 | `comms` | `dropped_packets_pps` | packets/s | packets lost to bit errors or a full queue |
 | `comms` | `throughput_gbps` | Gb/s | delivered throughput |
+| `flight` | `latitude`, `longitude` | ° | the drone's position |
+| `flight` | `altitude` | m | height above mean sea level |
+| `flight` | `groundspeed` | m/s | speed over the ground |
+| `flight` | `battery_voltage` | V | 6S flight battery, which sags as it drains |
+| `flight` | `battery_remaining` | % | battery charge left |
 
 Traffic is 1500-byte packets, so 1 Mpps is 12 Gb/s. The modem runs at 20 Gb/s, about 1.67 Mpps,
 while it has at least 2 dB of link margin. Below that, it steps down to a more robust modulation at
@@ -341,6 +354,11 @@ while it has at least 2 dB of link margin. Below that, it steps down to a more r
 
 The amplifier loses about 0.05 dB of gain per °C, which eats into the link margin. Five minutes
 in, RadioTwo's cooling fan fails. Its marginal amplifier then runs out of margin.
+
+Each radio hangs under a drone. The drones take off 1.2 km apart, climb to about 160 m in 30 s,
+then fly over their sites for the rest of the test: RadioOne's a figure eight 500 m wide and
+RadioTwo's circles 350 m across, with wind pushing them east. The radios' power draw adds to the
+batteries' load.
 
 ```{code-cell} ipython3
 :tags: [hide-input]
@@ -418,30 +436,134 @@ def field_test(
     }
 
 
+def drone_flight(
+    lat0: float, lon0: float, width_m: float, laps: float, circle: bool, seed: int
+) -> pd.DataFrame:
+    """A drone that climbs for 30 s while flying a figure eight or a circle."""
+    rng = np.random.default_rng(seed)
+    climb = np.clip(t / 30, 0, 1)
+    # Altitude rises to 160 m, then swells and falls by 25 m every 200 s.
+    altitude = (
+        40
+        + 120 * climb
+        + 25 * np.sin(2 * np.pi * t / 200) * climb
+        + np.cumsum(rng.normal(0, 0.02, t.size)) * climb
+    )
+
+    # Position as meters east and north of the takeoff point. The path is `width_m` wide
+    # and flies `laps` times in the test: a circle, or a figure eight half as tall. Wind
+    # drifts the drone east and adds a random walk.
+    phase = 2 * np.pi * laps * t / DURATION_S
+    if circle:
+        path_east = width_m / 2 * np.sin(phase)
+        path_north = width_m / 2 * (1 - np.cos(phase))
+    else:
+        path_east = width_m / 2 * np.sin(phase)
+        path_north = width_m / 4 * np.sin(2 * phase)
+    east = path_east * climb + np.cumsum(rng.normal(0.02, 0.08, t.size)) * climb
+    north = path_north * climb + np.cumsum(rng.normal(0, 0.08, t.size)) * climb
+    groundspeed = np.hypot(np.gradient(east, t), np.gradient(north, t))
+
+    # A 6S pack at 25.2 V full sags with load and as it drains. The 10-minute test uses 12%.
+    remaining = 100 - 12 * t / DURATION_S
+    voltage = (
+        21.5 + 3.7 * remaining / 100 - 0.4 * climb + rng.normal(0, 0.02, t.size)
+    )
+
+    return pd.DataFrame(
+        {
+            "latitude": lat0 + north / 111_320,
+            "longitude": lon0 + east / (111_320 * np.cos(np.radians(lat0))),
+            "altitude": altitude,
+            "groundspeed": groundspeed + np.abs(rng.normal(0, 0.05, t.size)),
+            "battery_voltage": voltage,
+            "battery_remaining": remaining,
+        },
+        index=pd.Index(times, name="time"),
+    ).round(6)
+
+
 tests = {
     "RadioOne": field_test(amplifier_gain_db=21.0, fan_fails_at_s=None, seed=11),
     "RadioTwo": field_test(amplifier_gain_db=18.5, fan_fails_at_s=300, seed=12),
 }
+# The drones start 1.2 km apart, near Washington, DC.
+tests["RadioOne"]["flight"] = drone_flight(
+    38.8895, -77.0353, width_m=500, laps=2, circle=False, seed=21
+)
+tests["RadioTwo"]["flight"] = drone_flight(
+    38.8895, -77.0353 + 0.01729, width_m=350, laps=3, circle=True, seed=22
+)
 ```
 
 ```{code-cell} ipython3
 # Plot the simulated test for both radios.
-fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
-for radio, tables in tests.items():
-    tables["power"]["thermistor_voltage"].plot(ax=axes[0], label=radio)
-    tables["comms"]["throughput_gbps"].plot(ax=axes[1], label=radio)
-    tables["comms"]["dropped_packets_pps"].plot(ax=axes[2], label=radio, logy=True)
-for ax, label in zip(
-    axes, ["thermistor (V)", "throughput (Gb/s)", "dropped (packets/s)"], strict=True
-):
-    ax.set_ylabel(label)
-    ax.legend()
-fig.tight_layout()
+CHANNEL_PLOTS = [
+    ("power", "thermistor_voltage", "thermistor (V)"),
+    ("comms", "throughput_gbps", "throughput (Gb/s)"),
+    ("comms", "dropped_packets_pps", "dropped (packets/s)"),
+    ("flight", "battery_voltage", "drone battery (V)"),
+]
+radio_colors = {"RadioOne": "#2ca02c", "RadioTwo": "#ff7f0e"}
+fig = make_subplots(
+    rows=len(CHANNEL_PLOTS), cols=1, shared_xaxes=True, vertical_spacing=0.04
+)
+for row, (scope, channel, label) in enumerate(CHANNEL_PLOTS, start=1):
+    for radio, tables in tests.items():
+        fig.add_scatter(
+            x=tables[scope].index,
+            y=tables[scope][channel],
+            name=radio,
+            legendgroup=radio,
+            showlegend=row == 1,
+            line={"color": radio_colors[radio], "width": 1},
+            row=row,
+            col=1,
+        )
+    fig.update_yaxes(title_text=label, row=row, col=1)
+fig.update_yaxes(type="log", row=3, col=1)
+fig.update_layout(height=760)
+fig
+```
+
+The map shows where each drone flew. It opens on the centroid of both drones' tracks, with each
+radio's track as a line and its takeoff point marked:
+
+```{code-cell} ipython3
+flights = pd.concat(
+    [tables["flight"].assign(radio=radio) for radio, tables in tests.items()]
+)
+# Open the map on the centroid of all the positions, zoomed to fit both tracks.
+center = {"lat": flights["latitude"].mean(), "lon": flights["longitude"].mean()}
+radio_map = px.line_map(
+    flights,
+    lat="latitude",
+    lon="longitude",
+    color="radio",
+    center=center,
+    zoom=14,
+    height=420,
+)
+starts = flights.groupby("radio").first().reset_index()
+radio_map.add_scattermap(
+    lat=starts["latitude"],
+    lon=starts["longitude"],
+    mode="markers+text",
+    text=starts["radio"],
+    textposition="top right",
+    textfont={"color": "white"},
+    marker={"size": 10},
+    showlegend=False,
+)
+radio_map.update_layout(
+    map_style="carto-darkmatter", margin={"l": 0, "r": 0, "t": 0, "b": 0}
+)
+radio_map
 ```
 
 ### Upload the field test
 
-Both radios store their data under the same data scope names, `power` and `comms`, so one workbook
+Both radios store their data under the same data scope names, `power`, `comms` and `flight`, so one workbook
 template or checklist works for either radio. {py:meth}`~nominal.core.Asset.get_or_create_dataset`
 creates each radio's dataset under its data scope, and `upload_dataframe_to_dataset` uploads the
 test, waiting until Nominal has ingested it.
@@ -469,6 +591,12 @@ CHANNELS = {
         "Packets dropped to bit errors or a full queue, in packets per second",
     ),
     "throughput_gbps": ("Gb/s", "Delivered throughput"),
+    "latitude": ("°", "Drone latitude, WGS 84"),
+    "longitude": ("°", "Drone longitude, WGS 84"),
+    "altitude": ("m", "Drone altitude above mean sea level"),
+    "groundspeed": ("m/s", "Drone speed over the ground"),
+    "battery_voltage": ("V", "6S flight battery voltage"),
+    "battery_remaining": ("%", "Flight battery charge remaining"),
 }
 
 runs = {}
@@ -497,7 +625,7 @@ for radio, tables in tests.items():
         f"{radio} field test {test_start:%Y-%m-%d %H:%M}",
         start=times[0],
         end=times[-1],
-        description="10-minute W-band link test at 20 Gb/s line rate",
+        description="10-minute W-band link test at 20 Gb/s line rate, with the radio on a drone",
         properties={
             "site": "Range 4",
             "link_distance_km": 1.2,
@@ -534,140 +662,95 @@ step_down = assets["RadioTwo"].create_event(
 )
 ```
 
-## Review
+## Review with Nominal's Analyst
+
+Analysis happens in the Nominal platform. Open the RadioTwo run in Nominal, then give its
+assistant a prompt like the ones below to set up a workbook.
 
 ### What's in Nominal
 
-A card's name links to its page in Nominal, and its copy button copies its RID.
+The two radio assets are in Nominal. A card's name links to its page there, and its copy button
+copies its RID. Each card lists the asset's datasets by data scope, its runs and its attachments,
+and links on to them. Each Touchstone file's name downloads the file from Nominal, after signing
+in if needed:
 
-An asset card lists the asset's datasets by data scope, its runs and its attachments. Each
-Touchstone file's name downloads the file from Nominal, after signing in if needed:
+```{code-cell} ipython3
+assets["RadioOne"]
+```
 
 ```{code-cell} ipython3
 assets["RadioTwo"]
 ```
 
-A run card lists the run's assets, their datasets and the run's attachments:
+### Overview of a run
 
-```{code-cell} ipython3
-runs["RadioTwo"]
+A map, the key telemetry and an amplifier gain curve in one workbook.
+
++++
+
+```text
+make a workbook for this run that shows
+ * the drone's position on a map, using the "street" base layer
+ * thermistor voltage, throughput and dropped packets on separate plots, stacked
+ * the distance between the two drones, computed from their latitude and longitude,
+   on a new plot under dropped packets
+ * the drone's battery voltage and altitude on a plot
+ * the amplifier's S21 gain from the attached Touchstone file, full width at the bottom
+Compare RadioOne and RadioTwo, and mark the fan failure event.
 ```
 
-A dataset card lists its files and channels:
-
-```{code-cell} ipython3
-assets["RadioTwo"].get_dataset("comms")
+```{image} images/rf-radio-workbook.png
+:alt: A Nominal workbook comparing RadioOne and RadioTwo, with plots of thermistor voltage, throughput, dropped packets, the distance between the drones, battery voltage and altitude, a map of the drones' flights and the amplifier's S21 gain
+:width: 100%
+:target: ../_images/rf-radio-workbook.png
 ```
 
-A numeric channel's card shows its statistics and a small chart:
+### Flight telemetry against dropped packets
 
-```{code-cell} ipython3
-assets["RadioTwo"].get_dataset("power").get_channel("thermistor_voltage")
+Both drones' flight data overlaid on dropped packets, to check whether where and how the drones flew explains RadioTwo's drops.
+
++++
+
+```text
+make a workbook that compares RadioOne and RadioTwo's flight telemetry against dropped packets
+ * dropped packets for both radios on one plot, on a log scale, at the top
+ * below it, one plot per flight channel with RadioOne and RadioTwo overlaid:
+   altitude, groundspeed, battery voltage and battery remaining
+ * the distance between the two drones, computed from their latitude and longitude,
+   on a plot of its own
+ * a scatter plot of dropped packets against the distance between the drones
+ * a map of both drones' flights, using the "street" base layer
+ * a table of each drone's mean altitude, mean groundspeed and battery remaining at the
+   end, next to each radio's total dropped packets
+Mark RadioTwo's fan failure event on every time series plot.
 ```
 
-An attachment card has a download link for its file:
-
-```{code-cell} ipython3
-amplifier_attachments = {
-    radio: next(
-        a
-        for a in asset.list_attachments()
-        if a.properties.get("part") == "amplifier"
-    )
-    for radio, asset in assets.items()
-}
-amplifier_attachments["RadioTwo"]
+```{image} images/rf-radio-flight-workbook.png
+:alt: A Nominal workbook comparing RadioOne and RadioTwo's flight telemetry against dropped packets, with plots of altitude, groundspeed, battery voltage and remaining, the distance between the drones, dropped packets against that distance, a map of the drones' flights and a summary table
+:width: 100%
+:target: ../_images/rf-radio-flight-workbook.png
 ```
 
-An event card shows the event's type, start, end and duration:
+### Touchstone files
 
-```{code-cell} ipython3
-step_down
+One radio's component data, on a Smith chart and in log magnitude.
+
++++
+
+```text
+make a workbook for the RadioOne asset that shows its attached Touchstone files
+ * the antenna's S11 on a Smith chart
+ * the Tx filter's S21, the Rx filter's S21 and the amplifier's S21 in log magnitude (dB)
+   on separate plots, stacked, with frequency in GHz
+ * the Tx filter's and Rx filter's S11 in log magnitude on one plot
+ * the coupler's S31 (coupled) and S41 (isolated) in log magnitude on one plot
+Mark the Tx band (81–86 GHz) and the Rx band (91–96 GHz) on the log magnitude plots.
 ```
 
-### Why did RadioTwo drop packets?
+The workbook it builds in Nominal. Select the image to open it at full size:
 
-The investigation starts from Nominal, not from the local data. For each radio, find its
-field-test run and download the run's span of the `power` and `comms` datasets with
-`datasource_to_dataframe`:
-
-```{code-cell} ipython3
-downloaded = {}
-for radio, asset in assets.items():
-    run = next(r for r in asset.list_runs() if not r.is_archived)
-    downloaded[radio] = pd.concat(
-        [
-            datasource_to_dataframe(
-                asset.get_dataset(scope),
-                start=run.start,
-                end=run.end,
-            )
-            for scope in ["power", "comms"]
-        ],
-        axis=1,
-    )
-
-pd.DataFrame.from_dict(
-    {
-        radio: {
-            "peak thermistor (V)": data["thermistor_voltage"].max(),
-            "mean throughput (Gb/s)": data["throughput_gbps"].mean(),
-            "total dropped (packets)": data["dropped_packets_pps"].sum()
-            / SAMPLE_RATE_HZ,
-            "min bias (V)": data["bias_voltage"].min(),
-        }
-        for radio, data in downloaded.items()
-    },
-    orient="index",
-).round(3)
-```
-
-RadioTwo ran hotter after its fan failed, and throughput fell with it. RadioOne warmed too, but
-its link held. Plotting dropped packets against the thermistor voltage shows where each radio's
-link stopped keeping up:
-
-```{code-cell} ipython3
-fig, ax = plt.subplots(figsize=(8, 5))
-for radio, data in downloaded.items():
-    ax.scatter(
-        data["thermistor_voltage"],
-        data["dropped_packets_pps"].clip(lower=1),
-        s=3,
-        label=radio,
-    )
-ax.set_yscale("log")
-ax.set_xlabel("thermistor voltage (V)")
-ax.set_ylabel("dropped packets/s")
-ax.legend();
-```
-
-Heat alone doesn't explain it: at the same thermistor voltage, RadioTwo drops far more packets than
-RadioOne. Compare the component data. Download each amplifier's Touchstone file from its
-attachment, load it into scikit-rf and plot its gain:
-
-```{code-cell} ipython3
-downloads = DATA_DIR / "downloaded"
-fig, ax = plt.subplots(figsize=(8, 4))
-for radio, attachment in amplifier_attachments.items():
-    path = downloads / attachment.name
-    attachment.write(path)
-    rf.Network(str(path)).plot_s_db(m=1, n=0, ax=ax, label=f"{radio} amplifier S21")
-ax.axvspan(91, 96, alpha=0.1, label="Rx band")
-ax.legend();
-```
-
-RadioTwo's amplifier has about 2.5 dB less gain, and its `amplifier_gain_db` property says so too.
-That left it with half the link margin, so the gain it lost to heat after the fan failed pushed it
-below the modem's 2 dB threshold.
-
-Properties make that comparison without downloading anything. `search_assets` finds both radios,
-and their key figures sit side by side:
-
-```{code-cell} ipython3
-pd.DataFrame(
-    {
-        asset.name: dict(asset.properties)
-        for asset in client.search_assets(properties={"example": EXAMPLE})
-    }
-).drop(["example", "radio_id"])
+```{image} images/rf-radio-touchstone-workbook.png
+:alt: A Nominal workbook of RadioOne's Touchstone files, with the antenna's S11 on a Smith chart, and the Tx filter, Rx filter, amplifier, filter S11 and coupler plots in log magnitude, with the Tx and Rx bands marked
+:width: 100%
+:target: ../_images/rf-radio-touchstone-workbook.png
 ```
