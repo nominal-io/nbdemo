@@ -1,6 +1,5 @@
 ---
 icon: browser
-thumbnail: images/notebook-display-thumbnail.png
 jupytext:
   text_representation:
     format_name: myst
@@ -301,4 +300,10 @@ next(iter(telemetry.list_files()))
 
 ```{code-cell} ipython3
 rig.search_events()[0]
+```
+
+```{image} images/notebook-display-thumbnail.png
+:alt: A Nominal asset page for the rotor test rig RTR-02, with its properties and a relationships diagram: the asset linked to its telemetry and vibration datasets by ref name, and to three runs
+:width: 100%
+:target: ../_images/notebook-display-thumbnail.png
 ```
