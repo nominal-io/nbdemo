@@ -1,6 +1,5 @@
 ---
 icon: pulse
-thumbnail: images/sigmf-stream-thumbnail.png
 jupytext:
   text_representation:
     format_name: myst
@@ -153,4 +152,10 @@ status.update(
 
 ```{code-cell} ipython3
 
+```
+
+```{image} images/sigmf-stream-thumbnail.png
+:alt: The streamed I and Q samples plotted against time in a Nominal workbook, zoomed in to a few milliseconds
+:width: 100%
+:target: ../_images/sigmf-stream-thumbnail.png
 ```

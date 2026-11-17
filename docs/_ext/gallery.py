@@ -8,7 +8,7 @@ Adapted from nominal-client's ``example-gallery``. A card links to each:
 A card shows a thumbnail over the page's first ``#`` heading as its title. The thumbnail is, in
 order of preference:
 
-1. the page's ``thumbnail`` front-matter key, a path relative to the page;
+1. the page's ``thumbnail`` front-matter key, a path relative to the page (read from the file);
 2. the first image in a notebook cell tagged ``thumbnail``;
 3. the page's last image, so a notebook's last plot.
 
@@ -38,6 +38,7 @@ class notebook_gallery(nodes.General, nodes.Element):
 
 class Card(NamedTuple):
     title: str
+    thumbnail: str = ""
 
 
 def _heading(markdown: str, fallback: str) -> str:
@@ -56,7 +57,7 @@ def _myst_card(path: Path, *, notebook_only: bool) -> Card | None:
         meta = yaml.safe_load(front) or {}
     if notebook_only and "kernelspec" not in meta:
         return None
-    return Card(_heading(text, path.stem))
+    return Card(_heading(text, path.stem), str(meta.get("thumbnail", "")))
 
 
 def _cards(folder: Path, exclude: set[str]) -> list[tuple[str, Path, Card]]:
@@ -74,6 +75,20 @@ def _cards(folder: Path, exclude: set[str]) -> list[tuple[str, Path, Card]]:
 
 
 class NotebookGallery(SphinxDirective):
+    def _front_matter_thumbnail(self, card: Card, ref: str) -> str:
+        """The page's ``thumbnail`` front matter, as a path from the source directory, registered so
+        the builder copies it. Read here, from the file, as the titles are: the page's metadata isn't
+        reliably set on CI."""
+        if not card.thumbnail:
+            return ""
+        relpath, abspath = self.env.relfn2path(card.thumbnail, ref)
+        if not Path(abspath).is_file():
+            logger.warning("thumbnail %r of %s not found", card.thumbnail, ref, location=self.env.docname)
+            return ""
+        self.env.images.add_file(self.env.docname, relpath)
+        self.env.note_dependency(abspath)
+        return relpath
+
     option_spec = {"exclude": directives.unchanged}
 
     def run(self) -> list[nodes.Node]:
@@ -83,8 +98,9 @@ class NotebookGallery(SphinxDirective):
         exclude = set(self.options.get("exclude", "").split())
         for link, path, card in _cards(folder, exclude):
             self.env.note_dependency(path)
-            entries.append((card.title, f"{prefix}/{link}" if prefix else link))
-        self.env.notebook_galleries[self.env.docname] = {ref for _, ref in entries}
+            ref = f"{prefix}/{link}" if prefix else link
+            entries.append((card.title, ref, self._front_matter_thumbnail(card, ref)))
+        self.env.notebook_galleries[self.env.docname] = {ref for _, ref, _ in entries}
         return [notebook_gallery(entries=entries)]
 
 
@@ -96,16 +112,6 @@ def _image_key(env: BuildEnvironment, node: nodes.image) -> str | None:
 def _find_thumbnail(app: Sphinx, doctree: nodes.document) -> None:
     env = app.env
     docname = env.docname
-    thumbnail = env.metadata.get(docname, {}).get("thumbnail")
-    if thumbnail:
-        relpath, abspath = env.relfn2path(str(thumbnail), docname)
-        if Path(abspath).is_file():
-            env.images.add_file(docname, relpath)  # so the builder copies it
-            env.note_dependency(abspath, docname=docname)
-            env.notebook_thumbs[docname] = relpath
-            return
-        logger.warning("thumbnail %r not found", thumbnail, location=docname)
-
     images = [key for node in doctree.findall(nodes.image) if (key := _image_key(env, node))]
     tagged = [
         key
@@ -125,9 +131,9 @@ def _draw(app: Sphinx, doctree: nodes.document, docname: str) -> None:
             node.parent.remove(node)
             continue
         grid = nodes.container(classes=["sp-gallery"])
-        for title, ref in node["entries"]:
+        for title, ref, front_matter in node["entries"]:
             link = nodes.reference("", "", internal=True, refuri=app.builder.get_relative_uri(docname, ref))
-            thumb = env.notebook_thumbs.get(ref)
+            thumb = front_matter or env.notebook_thumbs.get(ref)
             if thumb:
                 frame = nodes.inline("", "", classes=["sp-gallery-image"])
                 frame += nodes.image(uri=thumb, candidates={"*": thumb}, alt="")
