@@ -12,7 +12,7 @@ def test_importing_reads_no_loader_libraries():
         "import sys, nbdemo.data as nd\n"
         "from nbdemo.data.med import ecg_mitbih_119\n"
         "nd.catalog()\n"
-        "print(sorted({'pandas', 'wfdb', 'sigmf', 'numpy'} & set(sys.modules)))"
+        "print(sorted({'pandas', 'wfdb', 'numpy'} & set(sys.modules)))"
     )
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout
     assert out.strip() == "[]"

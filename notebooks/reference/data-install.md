@@ -17,7 +17,7 @@ read that format. `nbdemo` is not published to PyPI, so install it from its repo
 ```bash
 pip install 'nbdemo @ git+ssh://git@github.com/nominal-io/nbdemo.git'                # paths only
 pip install 'nbdemo[med] @ git+ssh://git@github.com/nominal-io/nbdemo.git'           # + wfdb and pandas
-pip install 'nbdemo[rf] @ git+ssh://git@github.com/nominal-io/nbdemo.git'            # + sigmf
+pip install 'nbdemo[rf] @ git+ssh://git@github.com/nominal-io/nbdemo.git'            # + numpy
 pip install 'nbdemo[aero] @ git+ssh://git@github.com/nominal-io/nbdemo.git'          # + pandas
 pip install 'nbdemo[all] @ git+ssh://git@github.com/nominal-io/nbdemo.git'
 ```

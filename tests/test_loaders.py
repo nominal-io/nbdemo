@@ -24,3 +24,13 @@ def test_ecg_native_and_df():
 def test_a_dataset_caches_its_native_object():
     pytest.importorskip("wfdb")
     assert nd.med.ecg_mitbih_119.native is nd.med.ecg_mitbih_119.native
+
+
+def test_sigmf_native_reads_metadata_and_samples():
+    pytest.importorskip("numpy")
+    recording = nd.rf.sigmf_synthetic.native
+    assert recording.sample_rate == 480000
+    assert recording.get_global_field("core:datatype") == "cf32_le"
+    assert len(recording.captures) == 3
+    iq = recording.read_samples()
+    assert iq.dtype.name == "complex64" and len(iq) == 1_000_000

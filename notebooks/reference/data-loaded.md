@@ -25,8 +25,8 @@ record = ecg_mitbih_119.native  # wfdb.Record
 record.sig_name, record.fs
 ```
 
-For a SigMF recording, `native` is a `sigmf.SigMFFile`. It reads the samples from the file beside its
-metadata:
+For a SigMF recording, `native` is a small `SigMFRecording` of our own: the metadata, and `read_samples()` for the
+samples in the file beside it:
 
 ```{code-cell} ipython3
 from nbdemo.data.rf import sigmf_synthetic

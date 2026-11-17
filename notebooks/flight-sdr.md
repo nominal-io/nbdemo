@@ -99,7 +99,7 @@ repeats from the start as many times as it takes to cover the flight.
 ```{code-cell} ipython3
 RATE_FACTOR = 0.05  # 1.0: the recorded sample rate; 0.05: one twentieth of it
 
-recording = sigmf_synthetic.native  # a sigmf.SigMFFile, downloaded on first use
+recording = sigmf_synthetic.native  # a SigMFRecording, downloaded on first use
 recorded_rate = float(recording.get_global_field("core:sample_rate"))
 iq = recording.read_samples()  # complex samples
 
